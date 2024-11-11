@@ -1,6 +1,11 @@
+DROP DATABASE IF EXISTS `banking_db_v0`;
 CREATE DATABASE IF NOT EXISTS `banking_db_v0`;
 
 USE `banking_db_v0`;
+
+-- Create a user for the server
+CREATE USER IF NOT EXISTS 'server_user'@'localhost' IDENTIFIED BY 'server_password';
+GRANT ALL PRIVILEGES ON `banking_db_v0`.* TO 'server_user'@'localhost';
 
 CREATE TABLE IF NOT EXISTS `users` (
     `user_id` INT AUTO_INCREMENT PRIMARY KEY,
