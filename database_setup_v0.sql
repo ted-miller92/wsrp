@@ -10,7 +10,7 @@ GRANT ALL PRIVILEGES ON `banking_db_v0`.* TO 'server_user'@'localhost';
 CREATE TABLE IF NOT EXISTS `users` (
     `user_id` INT AUTO_INCREMENT PRIMARY KEY,
     `user_type` ENUM('CUSTOMER', 'EMPLOYEE') NOT NULL,
-    `username` VARCHAR(50) NOT NULL UNIQUE,
+    `user_name` VARCHAR(50) NOT NULL UNIQUE,
     `first_name` VARCHAR(50) NOT NULL,
     `last_name` VARCHAR(50) NOT NULL,
     `email` VARCHAR(100) NOT NULL UNIQUE
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
 );
 
 -- Insert sample data
-INSERT INTO `users` (`user_type`, `username`, `first_name`, `last_name`, `email`) VALUES 
+INSERT INTO `users` (`user_type`, `user_name`, `first_name`, `last_name`, `email`) VALUES 
     ('EMPLOYEE', 'rwilson', 'Robert', 'Wilson', 'robert.wilson@bank.com'),
     ('EMPLOYEE', 'lchen', 'Lisa', 'Chen', 'lisa.chen@bank.com'),
     ('EMPLOYEE', 'dthomas', 'David', 'Thomas', 'david.thomas@bank.com'),
