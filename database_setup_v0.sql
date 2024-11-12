@@ -59,7 +59,7 @@ INSERT INTO `accounts` (`account_number`, `account_type`, `account_balance`, `ac
     ('1001-2347', 'INVESTMENT', 25000.00, 0.0025);
 
 -- Link users to accounts (many-to-many)
-INSERT INTO `user_accounts` (`user_id`, `account_id`, `access_level`) VALUES 
+INSERT INTO `user_accounts` (`user_id`, `account_id`) VALUES 
     (1, 1),
     (1, 2),
     (2, 2),
