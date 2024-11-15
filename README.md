@@ -61,7 +61,11 @@ Now install node:
 
 `nvm install node`
 
-The latest version will be installed. Change to the `wsrp_vue` directory to start the vue front end with the following command:
+The latest version will be installed. Change to the `wsrp_vue` directory. Install dependencies:
+
+`npm install`
+
+Start the vue front end with the following command:
 
 `npm run dev`
 
