@@ -1,2 +1,37 @@
 server_env/
 __pycache__/
+node_modules
+
+
+# Logs
+wsrp_vue/logs
+*.log
+wsrp_vue/npm-debug.log*
+wsrp_vue/yarn-debug.log*
+wsrp_vue/yarn-error.log*
+wsrp_vue/pnpm-debug.log*
+wsrp_vue/lerna-debug.log*
+
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# Editor directories and files
+wsrp_vue/.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+
+.editorconfig
+

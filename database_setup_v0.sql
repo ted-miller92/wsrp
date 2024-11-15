@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS `users` (
     `user_name` VARCHAR(50) NOT NULL UNIQUE,
     `first_name` VARCHAR(50) NOT NULL,
     `last_name` VARCHAR(50) NOT NULL,
-    `email` VARCHAR(100) NOT NULL UNIQUE
+    `email` VARCHAR(100) NOT NULL UNIQUE,
+    `password` VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS `accounts` (
@@ -44,13 +45,13 @@ CREATE TABLE IF NOT EXISTS `transactions` (
 );
 
 -- Insert sample data
-INSERT INTO `users` (`user_type`, `user_name`, `first_name`, `last_name`, `email`) VALUES 
-    ('EMPLOYEE', 'rwilson', 'Robert', 'Wilson', 'robert.wilson@bank.com'),
-    ('EMPLOYEE', 'lchen', 'Lisa', 'Chen', 'lisa.chen@bank.com'),
-    ('EMPLOYEE', 'dthomas', 'David', 'Thomas', 'david.thomas@bank.com'),
-    ('CUSTOMER', 'jsmith', 'John', 'Smith', 'john.smith@gmail.com'),
-    ('CUSTOMER', 'sjohnson', 'Sarah', 'Johnson', 'sarah.johnson@hotmail.com'),
-    ('CUSTOMER', 'mbrown', 'Michael', 'Brown', 'michael.brown@yahoo.com');
+INSERT INTO `users` (`user_type`, `user_name`, `first_name`, `last_name`, `email`, `password`) VALUES 
+    ('EMPLOYEE', 'rwilson', 'Robert', 'Wilson', 'robert.wilson@bank.com', 'password123'),
+    ('EMPLOYEE', 'lchen', 'Lisa', 'Chen', 'lisa.chen@bank.com', 'password456'),
+    ('EMPLOYEE', 'dthomas', 'David', 'Thomas', 'david.thomas@bank.com', 'ezpass'),
+    ('CUSTOMER', 'jsmith', 'John', 'Smith', 'john.smith@gmail.com', 'easierpass'),
+    ('CUSTOMER', 'sjohnson', 'Sarah', 'Johnson', 'sarah.johnson@hotmail.com', 'securepass'),
+    ('CUSTOMER', 'mbrown', 'Michael', 'Brown', 'michael.brown@yahoo.com', 'superpass');
 
 
 INSERT INTO `accounts` (`account_number`, `account_type`, `account_balance`, `account_interest_rate`) VALUES 
