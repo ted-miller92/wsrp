@@ -8,8 +8,6 @@ const user_name = ref('');
 const password = ref('');
 
 onMounted(() => {
-
-	const button = document.getElementById('testFetch');
 	const loginButton = document.getElementById('login');
 
 
@@ -52,8 +50,6 @@ onMounted(() => {
 			}
 		}
 	}
-
-	button.addEventListener('click', testFetch);
 	loginButton.addEventListener('click', login);
 })
 
@@ -78,9 +74,7 @@ onMounted(() => {
 				
 				<p>Don't have an account? <router-link to="/register">Register</router-link></p>
 				
-			</form>
-			<button id="testFetch">Test Fetch</button>
-			
+			</form>			
 		</div>	
 	</div>	
 </template>
