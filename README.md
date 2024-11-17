@@ -31,6 +31,14 @@ Install MySQL:
 
 Choose a memorable password for the root user.
 
+Start MySQL and enter the password you just created:
+
+`mysql -u root -p`
+
+Create the database with the script:
+
+`source database_setup_v0.sql`
+
 ## Server/API
 
 Set up server
