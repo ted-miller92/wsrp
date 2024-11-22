@@ -48,7 +48,7 @@ def get_users():
     elif request.method == 'POST':
         # Parse JSON data from the request body
         data = request.get_json()
-        
+
         # Determine whether to query by user_name or user_id
         if data.get("user_name"):
             user_name = data.get("user_name")
@@ -66,7 +66,8 @@ def get_users():
 def login():
     """
     Handles user login by validating credentials.
-    Note: Uses insecure practices such as plain-text password storage and SQL injection vulnerability.
+    Note: Uses insecure practices such as plain-text password storage and SQL 
+    injection vulnerability.
     """
     # Parse JSON data from the request body
     data = request.get_json()
