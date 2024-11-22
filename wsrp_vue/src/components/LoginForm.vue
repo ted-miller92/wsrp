@@ -43,7 +43,7 @@ onMounted(() => {
 			console.log(data);
 
 			// A not very secure way to do it
-			if (data.user_type == 'ADMIN') {
+			if (data.user_type == 'EMPLOYEE') {
 				router.push('/adminDashboard');
 			} else {
 				router.push('/customerDashboard');
