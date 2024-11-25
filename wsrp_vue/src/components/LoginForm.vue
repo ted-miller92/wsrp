@@ -10,15 +10,6 @@ const password = ref('');
 onMounted(() => {
 	const loginButton = document.getElementById('login');
 
-
-
-	function testFetch() {
-		fetch('http://127.0.0.1:5000/api/users', options)
-		.then(response => response.json())
-		.then(data => console.log(data))
-		.catch(err => console.error(err));
-	}
-
 	async function login(event) {
 		event.preventDefault();
 
@@ -41,6 +32,12 @@ onMounted(() => {
 		if (response.ok) { 
 			const data = await response.json();
 			console.log(data);
+
+			// Get the JWT access token
+			// Store it in the local storage
+			// Note: Storing as a cookie is perhaps better than local storage
+			// Note: It may be better in the future to store it using a state management tool like Pinia
+			localStorage.setItem('access_token', data.access_token);
 
 			// A not very secure way to do it
 			if (data.user_type == 'EMPLOYEE') {
