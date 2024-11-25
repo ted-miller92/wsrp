@@ -1,13 +1,22 @@
 """Server code consists of an API to access the database"""
 
 # Import necessary libraries and modules
+from datetime import timedelta
 from flask import Flask, request, jsonify  # Flask for building the web app, request and jsonify for handling HTTP requests and responses
 from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
 
 # Initialize the Flask app
 app = Flask(__name__)
+
+# Flask JWT Configuration
+app.config['JWT_SECRET_KEY'] = 'secret_key' # change this and save in .env file
+
+# allow JWT to be sent in cookies
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+jwt = JWTManager(app)
 
 # Enable Cross-Origin Resource Sharing to allow requests from different domains
 CORS(app)
@@ -29,7 +38,8 @@ db = SQLAlchemy(app)
 # Define a basic route to confirm the API is running
 @app.route('/api')
 def index():
-    return "This is the API"
+    """Returns a confirmation that the API is running"""
+    return "API is up and running"
 
 # Define a route to handle user-related operations
 @app.route('/api/users', methods=['GET', 'POST'])
@@ -88,28 +98,125 @@ def login():
 
         # Verify the password (insecure matching)
         if result[0].password != password:
-            body = {"message": "Invalid Password", 
+            body = {"message": "Invalid Password",
                     "status_code": 401, 
                     "result": [row._asdict() for row in result]}
             return jsonify(body), 401
 
+        # Create an access token
         # Return user details (user_id and user_type) - also not secure
-        body = {"user_id": result[0].user_id, "user_type": result[0].user_type}
+        access_token = create_access_token(identity=result[0].user_name)
+
+        response = jsonify({
+            "message": "Login successful",
+            "status_code": 200,
+            "user_id": result[0].user_id, 
+            "user_type": result[0].user_type,
+            "access_token": access_token
+            })
+
+        # Note: In other iterations, it may be better to store the JWT in a cookie to
+        # protect from CSRF attacks
+        return response
+
+
+# Define a route to create a new user
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    """
+    Handles user registration.
+    Note: Uses insecure practices such as plain-text password storage and SQL 
+    injection vulnerability.
+    """
+    # Parse JSON data from the request body
+    data = request.get_json()
+    user_name = data.get("user_name")
+    password = data.get("password")
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    email = data.get("email")
+    user_type = data.get("user_type")
+
+    query_1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
+    with db.engine.begin() as connection:
+        result = connection.execute(query_1).fetchall()  # Fetch all matching rows
+
+        # Check if the user already exists
+        if len(result) > 0:
+            body = {"message": "User already exists",
+                    "status_code": 401, 
+                    "result": [row._asdict() for row in result]}
+            return jsonify(body), 401
+
+        # Check if the email already exists
+        query_2 = text("SELECT * FROM users WHERE email = '" + email + "';")
+        result = connection.execute(query_2).fetchall()  # Fetch all matching rows
+        if len(result) > 0:
+            body = {"message": "Email already exists",
+                    "status_code": 401, 
+                    "result": [row._asdict() for row in result]}
+            return jsonify(body), 401
+
+        # Insert the new user into the 'users' table
+        query_3 = text("INSERT INTO users \
+                       (user_name, password, first_name, last_name, email, user_type) \
+                       VALUES \
+                       ('" + user_name + "', '" + password + "', '" + first_name + "', '" + last_name + "', '" + email + "', '" + user_type + "');")
+        connection.execute(query_3)  # Execute the query
+        body = {
+            "message": "User created successfully",
+            "status_code": 200
+        }
         return jsonify(body), 200
 
-# Define a route to retrieve account data
+@app.route('/api/auth/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    """Destroys/nullifies the jwt token
+    This endpoint is only used with the version of the server that uses cookies for
+    JWT token authentication/storage
+    """
+    response = jsonify({
+        "message": "Logout successful",
+        "status_code": 200
+        })
+    unset_jwt_cookies(response)
+    return response
+
+
 @app.route('/api/accounts', methods=['GET'])
-def get_accounts():
+@jwt_required()
+def get_account():
     """
-    Retrieves all accounts from the 'accounts' table.
+    Retrieves an account from the 'accounts' table based on the provided account_id.
     """
-    query = text("SELECT * FROM accounts")  # SQL query to fetch all accounts
-    with db.engine.begin() as connection:
-        result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-        return [row._asdict() for row in result]  # Return results as a list of dictionaries
+    if request.args.get('account_id'):
+        account_id = request.args.get('account_id')
+        query = text("SELECT * FROM accounts WHERE account_id = " + account_id)
+        with db.engine.begin() as connection:
+            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            body = {
+                "message": "Account retrieved successfully",
+                "status_code": 200,
+                "acount": result[0]._asdict()
+            }
+            return jsonify(body), 200
+    else:
+        # returns all accounts
+        query = text("SELECT * FROM accounts")
+        with db.engine.begin() as connection:
+            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            body = {
+                "message": "Accounts retrieved successfully",
+                "status_code": 200,
+                "accounts": [row._asdict() for row in result]
+            }
+            return jsonify(body), 200
+
 
 # Define a route to retrieve transaction data
 @app.route('/api/transactions', methods=['GET'])
+@jwt_required()
 def get_transactions():
     """
     Retrieves all transactions from the 'transactions' table.
