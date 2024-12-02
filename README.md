@@ -91,3 +91,5 @@ The first feature that is "testable" is SQL injection. Open a web browser and na
 ![sql injection](public/sql_injection_1.png)
 
 Enter anything for the Password field. Before clicking "Login", open the web browser console (On Firefox, right-click > "Inspect"). After submitting the login form you will not be directed anywhere, but in the console you will see a list of all of the users in the database.
+
+When you switch to the "sql_injection_secure" branch and run the application (using the same steps from above) you will not be able to run this specific attack. 
