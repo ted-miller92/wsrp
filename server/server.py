@@ -5,6 +5,7 @@ from datetime import timedelta
 from flask import Flask, request, jsonify  # Flask for building the web app, request and jsonify for handling HTTP requests and responses
 from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
+from flask_validator import ValidateString # validate string input
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
 
@@ -62,6 +63,10 @@ def get_users():
         # Determine whether to query by user_name or user_id
         if data.get("user_name"):
             user_name = data.get("user_name")
+
+            # strip any unallowed characters
+            user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
+
             user = db.session.query(db.Users).filter(db.Users.user_name == user_name).first()
             return user
         elif data.get("user_id"):
