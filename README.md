@@ -1,5 +1,7 @@
 # Website Security Research Project
 
+> Warning! This is the SQL injection vulnerable branch. Use this branch to explore the SQL injection vulnerability. The more secure branch is name "sql_injection_secure"
+
 ## Set Up Instructions to Test 
 
 The first steps to get the project running are to create a virtual environment
