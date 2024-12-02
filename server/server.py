@@ -88,6 +88,10 @@ def login():
     user_name = data.get("user_name")
     password = data.get("password")
 
+    # strip any unallowed characters
+    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
+    password = password.strip("';#$%&*()_+=@/\\|~`")
+
     # Query to retrieve the user by username
     query1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
     with db.engine.begin() as connection:
@@ -140,6 +144,13 @@ def register():
     last_name = data.get("last_name")
     email = data.get("email")
     user_type = data.get("user_type")
+
+    # strip any unallowed characters
+    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
+    password = password.strip("';#$%&*()_+=@/\\|~`")
+    first_name = first_name.strip("';#$%&*()_+=@/\\|~`")
+    last_name = last_name.strip("';#$%&*()_+=@/\\|~`")
+    email = email.strip("';#$%&*()_+=@/\\|~`")
 
     query_1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
     with db.engine.begin() as connection:
