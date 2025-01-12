@@ -2,6 +2,17 @@
 
 > Warning! This is the SQL injection vulnerable branch. Use this branch to explore the SQL injection vulnerability. The more secure branch is name "sql_injection_secure"
 
+## Branches
+
+A quick note before setting up the environment and running the application. This project uses git branches to demonstrate different versions of the application, some more secure than others. The general naming convention is `[attack method]_secure` and `[attack method]_vulnerable`. In order to run the application with an SQL injection insecurity, after having cloned the repo, you would run 
+
+```
+git fetch
+git checkout sql_injection_vulnerable
+git pull origin sql_injection_vulnerable
+```
+You would then follow the rest of the set up instructions. 
+
 ## Set Up Instructions to Test 
 
 The first steps to get the project running are to create a virtual environment
