@@ -46,7 +46,7 @@ def index():
 def get_users():
     """
     Handles retrieving all users (GET) or querying for a specific user (POST).
-    Note: Deliberately uses insecure practices for educational purposes.
+    Note: This route is more secure from SQL injection attacks than the route in the "sql_injection_vulnerable" branch
     """
     if request.method == 'GET':
         # Query to retrieve all users from the 'users' table
@@ -62,15 +62,19 @@ def get_users():
         # Determine whether to query by user_name or user_id
         if data.get("user_name"):
             user_name = data.get("user_name")
-            query = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
+
+            # strip any unallowed characters
+            user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
+
+            user = db.session.query(db.Users).filter(db.Users.user_name == user_name).first()
+            return user
         elif data.get("user_id"):
             user_id = data.get("user_id")
-            query = text("SELECT * FROM users WHERE user_id = " + user_id)
-
-        with db.engine.begin() as connection:
-            result = connection.execute(query)  # Execute the query
-            return [row._asdict() for row in result]  # Return results as a list of dictionaries
-
+            user = db.session.query(db.Users).filter(db.Users.user_id == user_id).first()
+            return user
+        else:
+            return {"message": "Invalid request", "status_code": 400}
+        
 # Define a route for user login
 @app.route('/api/auth/login', methods=['POST'])
 def login():
@@ -83,6 +87,10 @@ def login():
     data = request.get_json()
     user_name = data.get("user_name")
     password = data.get("password")
+
+    # strip any unallowed characters
+    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
+    password = password.strip("';#$%&*()_+=@/\\|~`")
 
     # Query to retrieve the user by username
     query1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
@@ -136,6 +144,13 @@ def register():
     last_name = data.get("last_name")
     email = data.get("email")
     user_type = data.get("user_type")
+
+    # strip any unallowed characters
+    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
+    password = password.strip("';#$%&*()_+=@/\\|~`")
+    first_name = first_name.strip("';#$%&*()_+=@/\\|~`")
+    last_name = last_name.strip("';#$%&*()_+=@/\\|~`")
+    email = email.strip("';#$%&*()_+=@/\\|~`")
 
     query_1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
     with db.engine.begin() as connection:

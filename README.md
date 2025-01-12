@@ -1,5 +1,7 @@
 # Website Security Research Project
 
+> Warning! This is the SQL injection vulnerable branch. Use this branch to explore the SQL injection vulnerability. The more secure branch is name "sql_injection_secure"
+
 ## Branches
 
 A quick note before setting up the environment and running the application. This project uses git branches to demonstrate different versions of the application, some more secure than others. The general naming convention is `[attack method]_secure` and `[attack method]_vulnerable`. In order to run the application with an SQL injection insecurity, after having cloned the repo, you would run 
@@ -100,3 +102,5 @@ The first feature that is "testable" is SQL injection. Open a web browser and na
 ![sql injection](public/sql_injection_1.png)
 
 Enter anything for the Password field. Before clicking "Login", open the web browser console (On Firefox, right-click > "Inspect"). After submitting the login form you will not be directed anywhere, but in the console you will see a list of all of the users in the database.
+
+When you switch to the "sql_injection_secure" branch and run the application (using the same steps from above) you will not be able to run this specific attack. 
