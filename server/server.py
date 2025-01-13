@@ -10,13 +10,16 @@ from sqlalchemy import text  # text allows execution of raw SQL queries
 
 # Initialize the Flask app
 app = Flask(__name__)
-
+jwt = JWTManager(app)
 # Flask JWT Configuration
 app.config['JWT_SECRET_KEY'] = 'secret_key' # change this and save in .env file
 
+# This is so we can test locally (send token over http instead of only https)
+app.config['JWT_COOKIE_SECURE'] = False
+
 # allow JWT to be sent in cookies
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-jwt = JWTManager(app)
+
 
 # Enable Cross-Origin Resource Sharing to allow requests from different domains
 CORS(app)
@@ -122,6 +125,8 @@ def login():
             "user_type": result[0].user_type,
             "access_token": access_token
             })
+        
+        set_access_cookies(response, access_token)
 
         # Note: In other iterations, it may be better to store the JWT in a cookie to
         # protect from CSRF attacks
@@ -185,7 +190,7 @@ def register():
         return jsonify(body), 200
 
 @app.route('/api/auth/logout', methods=['POST'])
-@jwt_required()
+@jwt_required() 
 def logout():
     """Destroys/nullifies the jwt token
     This endpoint is only used with the version of the server that uses cookies for
@@ -200,7 +205,7 @@ def logout():
 
 
 @app.route('/api/accounts', methods=['GET'])
-@jwt_required()
+# @jwt_required() # uncomment this line if you want to use JWT token authentication
 def get_account():
     """
     Retrieves an account from the 'accounts' table based on the provided account_id.
@@ -231,15 +236,37 @@ def get_account():
 
 # Define a route to retrieve transaction data
 @app.route('/api/transactions', methods=['GET'])
-@jwt_required()
+# @jwt_required() # uncomment this if you want to use JWT token authentication
 def get_transactions():
     """
-    Retrieves all transactions from the 'transactions' table.
+    Retrieves transactions from the 'transactions' table.
     """
-    query = text("SELECT * FROM transactions")  # SQL query to fetch all transactions
-    with db.engine.begin() as connection:
-        result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-        return [row._asdict() for row in result]  # Return results as a list of dictionaries
+    if request.args.get('account_id'):
+        account_id = request.args.get('account_id')
+        query = text("SELECT * FROM transactions WHERE account_id = " + account_id)
+        with db.engine.begin() as connection:
+            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            return [row._asdict() for row in result]  # Return results as a list of dictionaries
+    elif request.args.get('user_id'):
+        user_id = request.args.get('user_id')
+        query = text("SELECT * FROM transactions \
+                     INNER JOIN accounts ON transactions.account_id = accounts.account_id \
+                     INNER JOIN user_accounts ON accounts.account_id = user_accounts.account_id \
+                     WHERE user_accounts.user_id = " + user_id)
+        with db.engine.begin() as connection:
+            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            return [row._asdict() for row in result]  # Return results as a list of dictionaries
+    elif request.args.get('transaction_id'):
+        transaction_id = request.args.get('transaction_id')
+        query = text("SELECT * FROM transactions WHERE transaction_id = " + transaction_id)
+        with db.engine.begin() as connection:
+            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            return [row._asdict() for row in result]  # Return results as a list of dictionaries
+    else:
+        query = text("SELECT * FROM transactions")  # SQL query to fetch all transactions
+        with db.engine.begin() as connection:
+            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            return [row._asdict() for row in result]  # Return results as a list of dictionaries
 
 # Run the application in debug mode (for development purposes)
 if __name__ == '__main__':
