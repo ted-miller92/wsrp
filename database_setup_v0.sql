@@ -61,10 +61,10 @@ INSERT INTO `accounts` (`account_number`, `account_type`, `account_balance`, `ac
 
 -- Link users to accounts (many-to-many)
 INSERT INTO `user_accounts` (`user_id`, `account_id`) VALUES 
-    (1, 1),
-    (1, 2),
-    (2, 2),
-    (3, 3);
+    (4, 1),
+    (4, 2),
+    (5, 2),
+    (6, 3);
 
 INSERT INTO `transactions` (`account_id`, `transaction_type`, `transaction_amount`, `transaction_description`) VALUES 
     (1, 'DEPOSIT', 1000.00, 'Initial deposit'),
