@@ -1,6 +1,7 @@
 server_env/
 __pycache__/
 node_modules
+.vite
 
 
 # Logs
