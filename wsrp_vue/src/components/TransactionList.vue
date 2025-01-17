@@ -1,60 +1,25 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
-import {useRouter } from 'vue-router'
-// import GenericList from './GenericList.vue'
+import { defineProps } from 'vue'
 
-// const components = {
-//     GenericList
-// }
-
-const isLoading = ref(true);
-const data = ref(null);
-const options = {
-    method: 'GET',
-
-    headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': 'http://127.0.0.1:5000',
-        'Access-Control-Allow-Methods': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers',
-        'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
-    },
-}
-
-const fetchData = async () => {
-    try {
-        const response = await fetch('http://127.0.0.1:5000/api/transactions', options)
-        if (response.ok) {
-            
-            data.value = await response.json();
-            isLoading.value = false;
-        }
-    } catch (error) {
-        console.error(error);
-    }
-};
-
-onMounted(() => {
-    setTimeout(() => fetchData(), 1000);    
+defineProps({
+    data: {
+        type: Array,
+        required: true,
+    },  
 });
-
 </script>
 
 <template>
-    <div class="item">
-        <div class="details">
-            <h3>Transactions</h3>
-            <p v-if="isLoading">Loading...</p>
-            <p v-else-if="!isLoading && data.length === 0">No transactions found.</p>
-            <p v-else-if="!isLoading && data.length > 0">{{ data.length }} transactions found:</p>
-            <ul v-if="!isLoading && data.length > 0">
-                <li v-for="transaction in data" :key="transaction.transaction_id">
-                    <p>Transaction ID: {{ transaction.transaction_id }}</p>
-                    <p>Amount: {{ transaction.transaction_amount }}</p>
-                </li>
-            </ul>       
-        </div>        
+    <div v-if="data.length === 0">
+        <p>{{ data.length }} transactions found.</p>
     </div>
+    <ul>
+        <li v-for="(transaction, index) in data" :key="index">
+        <strong>Transaction ID:</strong> {{ transaction.transaction_id }}<br />
+        <strong>Amount:</strong> {{ transaction.transaction_amount }}<br />
+        <strong>Date:</strong> {{ transaction.transaction_date }}<br />
+        </li>
+    </ul>
 </template>
 
 <style scoped>
