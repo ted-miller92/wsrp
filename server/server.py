@@ -35,6 +35,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tra
 # Initialize SQLAlchemy with the Flask app
 db = SQLAlchemy(app)
 
+
+# Added root route 1-18
+@app.route('/')
+def home():
+    """Returns a confirmation that the server is running"""
+    return "Welcome to the Flask API!"
+
+
 # Define a basic route to confirm the API is running
 @app.route('/api')
 def index():
