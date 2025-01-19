@@ -3,17 +3,22 @@ import { ref, onMounted } from 'vue';
 import {jwtDecode} from 'jwt-decode'
 import Menu from './Menu.vue'
 import TransactionList from './TransactionList.vue';
+import AccountsList from './AccountsList.vue';
 
 // parse the user_name from the current jwt token
 const decodedToken = jwtDecode(localStorage.getItem('access_token'));
 const user_name = decodedToken.sub;
 
-const isLoading = ref(true); // Loading state
-const data = ref(null); // Placeholder for the fetched data
+// Data will be loaded into object that includes the list of transactions, response message and response code
+const transactionsLoading = ref(true); // Loading state for transactions
+const transactions = ref(null); // Placeholder for the fetched transactions
+
+// Data will be loaded into object that includes the list of accounts, response message and response code
+const accountsLoading = ref(true); // Loading state for accounts
+const accounts = ref(null); // Placeholder for the fetched accounts
 
 const options = {
 	method: 'GET',
-
 	headers: {
 		'Content-Type': 'application/json',
 		'Access-Control-Allow-Origin': 'http://127.0.0.1:5000',
@@ -23,26 +28,40 @@ const options = {
 	},
 }
 
-const fetchData = async () => {
+const fetchTransactions = async () => {
     try {
         const response = await fetch('http://127.0.0.1:5000/api/transactions', options)
         if (response.ok) {
-            
-            data.value = await response.json();
-            isLoading.value = false;
+            transactions.value = await response.json();
+            transactionsLoading.value = false;
         }
     } catch (error) {
         console.error(error);
     } finally {
-		isLoading.value = false; // Set loading to false after data is fetched
+		transactionsLoading.value = false; // Set loading to false after data is fetched
 	}
 };
 
-onMounted(() => {
-    setTimeout(() => fetchData(), 1000);    
-});
+const fetchAccounts = async () => {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/accounts', options)
+        if (response.ok) {
+            accounts.value = await response.json();
+            accountsLoading.value = false;
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+		accountsLoading.value = false; // Set loading to false after data is fetched
+	}
+};
 
-onMounted(fetchData);
+// onMounted(() => {
+//     setTimeout(() => fetchTransactions(), 1000);
+// 	setTimeout(() => fetchAccounts(), 1000);
+// });
+
+onMounted(fetchTransactions(), fetchAccounts());
 </script>
 
 <template>
@@ -55,7 +74,12 @@ onMounted(fetchData);
 
 	<div class="item">
 		<p>Here are all transactions:</p>
-		<TransactionList v-if="!isLoading && data" :data="data" />
+		<TransactionList v-if="!transactionsLoading && transactions" :data="transactions.transactions" />
+	</div>
+
+	<div class="item">
+		<p>Here are all accounts:</p>
+		<AccountsList v-if="!accountsLoading && accounts" :data="accounts.accounts" />
 	</div>
 </template>
 
