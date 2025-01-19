@@ -61,17 +61,16 @@ INSERT INTO `accounts` (`account_number`, `account_type`, `account_balance`, `ac
 
 -- Link users to accounts (many-to-many)
 INSERT INTO `user_accounts` (`user_id`, `account_id`) VALUES 
-    (1, 1),
-    (1, 2),
-    (2, 2),
-    (3, 3);
+    (4, 1),
+    (4, 2),
+    (5, 2),
+    (6, 3);
 
--- Sample transactions
--- INSERT INTO `transactions` (`account_id`, `transaction_type`, `amount`, `description`) VALUES 
---     (1, 'DEPOSIT', 1000.00, 'Initial deposit'),
---     (1, 'WITHDRAWAL', 200.00, 'ATM withdrawal'),
---     (2, 'TRANSFER', 500.00, 'Transfer to checking'),
---     (3, 'DEPOSIT', 5000.00, 'Investment contribution');
+INSERT INTO `transactions` (`account_id`, `transaction_type`, `transaction_amount`, `transaction_description`) VALUES 
+    (1, 'DEPOSIT', 1000.00, 'Initial deposit'),
+    (1, 'WITHDRAWAL', 200.00, 'ATM withdrawal'),
+    (2, 'TRANSFER', 500.00, 'Transfer to checking'),
+    (3, 'DEPOSIT', 5000.00, 'Investment contribution');
 
 -- Select statements to verify data
 -- SELECT * FROM `users`;
