@@ -1,34 +1,71 @@
-# Website Security Research Project
+### **Website Security Research Project**  
+⚠️ **Warning!** This is the **SQL injection vulnerable branch**. Use this branch to explore SQL injection vulnerabilities. The more secure branch is named **"sql_injection_secure"**.
 
-> Warning! This is the SQL injection vulnerable branch. Use this branch to explore the SQL injection vulnerability. The more secure branch is name "sql_injection_secure"
+---
 
-## Branches
+### **Branches**
+Before setting up the environment and running the application, note that this project uses **git branches** to demonstrate different levels of security.  
 
-A quick note before setting up the environment and running the application. This project uses git branches to demonstrate different versions of the application, some more secure than others. The general naming convention is `[attack method]_secure` and `[attack method]_vulnerable`. In order to run the application with an SQL injection insecurity, after having cloned the repo, you would run 
+The general naming convention is:
+- `[attack method]_secure` → More secure version
+- `[attack method]_vulnerable` → Vulnerable version
 
-```
+To run the application with an **SQL injection vulnerability**, after cloning the repo, run:
+```bash
 git fetch
 git checkout sql_injection_vulnerable
 git pull origin sql_injection_vulnerable
 ```
-You would then follow the rest of the set up instructions. 
+Then, follow the setup instructions below.
 
-## Set Up Instructions to Test 
+---
 
-The first steps to get the project running are to create a virtual environment
+### **Set Up Instructions to Test**
+The first steps to get the project running are to create a **virtual environment**.
 
-Install Oracle Virtual Box
+#### **1️⃣ Install VirtualBox**
+[Oracle VirtualBox](https://www.virtualbox.org/) is a free tool that lets you run **virtual machines (VMs)** on your computer. You’ll need it to create a separate, controlled environment for this project.
 
-Create a virtual machine running Ubuntu 22.04 LTS available here:
-https://releases.ubuntu.com/jammy/
+1. Download and install **VirtualBox** from:  
+   🔗 [https://www.virtualbox.org/](https://www.virtualbox.org/)
 
-install the apt packages required with the following command:
+---
 
-`sudo apt install git python3.10-venv curl`
+#### **2️⃣ Install Ubuntu 22.04 LTS (Virtual Machine)**
+🖥 **What is Ubuntu & Why are We Using It?**  
+Ubuntu is a popular, free **Linux-based operating system**. We use it because it provides a secure and consistent development environment that closely resembles real-world web servers.
 
-Clone this repository
+To set up an **Ubuntu virtual machine (VM)**:
+1. Download Ubuntu 22.04 LTS (or later) from:  
+   🔗 [https://releases.ubuntu.com/jammy/](https://releases.ubuntu.com/jammy/)
+2. Open **VirtualBox**, click **New**, and:
+   - Name: `Ubuntu 22.04` or current 
+   - Type: `Linux`
+   - Version: `Ubuntu (64-bit)` or appropriate option for your machine
+   - Memory: At least **??GB RAM** (recommended)
+   - Storage: At least **??GB+ dynamically allocated disk**
+3. Attach the **Ubuntu ISO** and install it inside the VM.
+4. Once installed, **log into Ubuntu** and open a **terminal** .
 
-`git clone https://github.com/ted-miller92/wsrp.git`
+---
+
+#### **3️⃣ Install Required Packages**
+Inside the **Ubuntu terminal**, run:
+```bash
+sudo apt update && sudo apt install git python3.10-venv curl -y
+```
+- `git` → Needed to clone the project repository.  
+- `python3.10-venv` → Creates an isolated Python environment.  
+- `curl` → Fetches files from the web.  
+
+---
+
+#### **4️⃣ Clone This Repository**
+Once Ubuntu is set up, **clone the project** into your virtual environment:
+```bash
+git clone https://github.com/ted-miller92/wsrp.git
+cd wsrp
+```
 
 ## Database 
 
