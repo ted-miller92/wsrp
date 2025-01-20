@@ -32,7 +32,7 @@ The first steps to get the project running are to create a **virtual environment
 ---
 
 #### **2️⃣ Install Ubuntu 22.04 LTS (Virtual Machine)**
-🖥 **What is Ubuntu?**  
+🖥 **What is Ubuntu & Why are We Using It?**  
 Ubuntu is a popular, free **Linux-based operating system**. We use it because it provides a secure and consistent development environment that closely resembles real-world web servers.
 
 To set up an **Ubuntu virtual machine (VM)**:
