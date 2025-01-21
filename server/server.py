@@ -254,7 +254,12 @@ def get_transactions():
         query = text("SELECT * FROM transactions WHERE account_id = " + account_id)
         with db.engine.begin() as connection:
             result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            return [row._asdict() for row in result]  # Return results as a list of dictionaries
+            body = {
+                "message": "Transactions retrieved successfully for account " + account_id,
+                "status_code": 200,
+                "transactions": [row._asdict() for row in result]
+            }
+            return jsonify(body), 200
     elif request.args.get('user_id'):
         user_id = request.args.get('user_id')
         query = text("SELECT * FROM transactions \
@@ -263,7 +268,12 @@ def get_transactions():
                      WHERE user_accounts.user_id = " + user_id)
         with db.engine.begin() as connection:
             result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            return [row._asdict() for row in result]  # Return results as a list of dictionaries
+            body = {
+                "message": "Transactions retrieved successfully for account " + user_id,
+                "status_code": 200,
+                "transactions": [row._asdict() for row in result]
+            }
+            return jsonify(body), 200
     elif request.args.get('user_name'):
         user_name = request.args.get('user_name')
         query = text("SELECT * FROM transactions \
@@ -273,18 +283,33 @@ def get_transactions():
                      WHERE users.user_name = " + user_name)
         with db.engine.begin() as connection:
             result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            return [row._asdict() for row in result]  # Return results as a list of dictionaries
+            body = {
+                "message": "Transactions retrieved successfully for user " + user_name,
+                "status_code": 200,
+                "transactions": [row._asdict() for row in result]
+            }
+            return jsonify(body), 200
     elif request.args.get('transaction_id'):
         transaction_id = request.args.get('transaction_id')
         query = text("SELECT * FROM transactions WHERE transaction_id = " + transaction_id)
         with db.engine.begin() as connection:
             result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            return [row._asdict() for row in result]  # Return results as a list of dictionaries
+            body = {
+                "message": "Transaction details retrieved successfully for transaction " + transaction_id,
+                "status_code": 200,
+                "transactions": [row._asdict() for row in result]
+            }
+            return jsonify(body), 200
     else:
         query = text("SELECT * FROM transactions")  # SQL query to fetch all transactions
         with db.engine.begin() as connection:
             result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            return [row._asdict() for row in result]  # Return results as a list of dictionaries
+            body = {
+                "message": "All transactions retrieved successfully",
+                "status_code": 200,
+                "transactions": [row._asdict() for row in result]
+            }
+            return jsonify(body), 200
 
 # Run the application in debug mode (for development purposes)
 if __name__ == '__main__':
