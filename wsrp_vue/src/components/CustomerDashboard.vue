@@ -8,6 +8,7 @@ import AccountsList from './AccountsList.vue';
 // parse the user_name from the current jwt token
 const decodedToken = jwtDecode(localStorage.getItem('access_token'));
 const user_name = decodedToken.sub;
+const userProfile = ref(null);
 
 // Data will be loaded into object that includes the list of transactions, response message and response code
 const transactionsLoading = ref(true); // Loading state for transactions
@@ -42,9 +43,9 @@ const fetchTransactions = async () => {
 	}
 };
 
-const fetchAccounts = async () => {
+const fetchAccounts = async (user_id) => {
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/accounts?user_id=\'' + user_name + '\'', options)
+        const response = await fetch('http://127.0.0.1:5000/api/accounts?user_id=\'' + user_id + '\'', options)
         if (response.ok) {
             accounts.value = await response.json();
             accountsLoading.value = false;
@@ -56,7 +57,22 @@ const fetchAccounts = async () => {
 	}
 };
 
-onMounted(fetchAccounts(), fetchTransactions());
+const fetchUserProfile = async () => {
+	try {
+		const response = await fetch('http://127.0.0.1:5000/api/users?user_name=\'' + user_name + '\'', options)
+		if (response.ok) {
+			userProfile.value = await response.json();
+			await fetchAccounts(userProfile.value.user.user_id);
+		}
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+onMounted(async () => {
+	await fetchUserProfile(); // Fetch user profile and accounts
+	await fetchTransactions(); // Fetch transactions
+});
 </script>
 
 <template>
