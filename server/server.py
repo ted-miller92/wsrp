@@ -52,40 +52,7 @@ def index():
     """Returns a confirmation that the API is running"""
     return "API is up and running"
 
-# Define a route to handle user-related operations
-@app.route('/api/users', methods=['GET', 'POST'])
-def get_users():
-    """
-    Handles retrieving all users (GET) or querying for a specific user (POST).
-    Note: This route is more secure from SQL injection attacks than the route in the "sql_injection_vulnerable" branch
-    """
-    if request.method == 'GET':
-        # Query to retrieve all users from the 'users' table
-        query = text("SELECT * FROM users")
-        with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Fetch all rows from the query result
-            return [row._asdict() for row in result]  # Return results as a list of dictionaries
-
-    elif request.method == 'POST':
-        # Parse JSON data from the request body
-        data = request.get_json()
-
-        # Determine whether to query by user_name or user_id
-        if data.get("user_name"):
-            user_name = data.get("user_name")
-
-            # strip any unallowed characters
-            user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
-
-            user = db.session.query(db.Users).filter(db.Users.user_name == user_name).first()
-            return user
-        elif data.get("user_id"):
-            user_id = data.get("user_id")
-            user = db.session.query(db.Users).filter(db.Users.user_id == user_id).first()
-            return user
-        else:
-            return {"message": "Invalid request", "status_code": 400}
-        
+       
 # Define a route for user login
 @app.route('/api/auth/login', methods=['POST'])
 def login():
@@ -211,6 +178,33 @@ def logout():
     unset_jwt_cookies(response)
     return response
 
+# Define a route to handle user-related operations
+@app.route('/api/users', methods=['GET', 'POST'])
+def get_users():
+    """
+    Handles retrieving all users (GET) or querying for a specific user (POST).
+    Note: This route is more secure from SQL injection attacks than the route 
+    defined in the "sql_injection_vulnerable" branch
+    """
+    if request.method == 'GET':
+        if request.args.get('user_name'):
+            user_name = request.args.get('user_name')
+            query = text("SELECT * FROM users WHERE user_name = " + user_name)
+            with db.engine.begin() as connection:
+                result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+                body = {
+                    "message": "User Information retrieved successfully",
+                    "status_code": 200,
+                    "user": result[0]._asdict()
+                }
+                return jsonify(body), 200
+        else:
+            # Query to retrieve all users from the 'users' table
+            query = text("SELECT * FROM users")
+            with db.engine.begin() as connection:
+                result = connection.execute(query).fetchall()  # Fetch all rows from the query result
+                return [row._asdict() for row in result]  # Return results as a list of dictionaries
+
 
 @app.route('/api/accounts', methods=['GET'])
 # @jwt_required() # uncomment this line if you want to use JWT token authentication
@@ -227,6 +221,20 @@ def get_account():
                 "message": "Account retrieved successfully",
                 "status_code": 200,
                 "acount": result[0]._asdict()
+            }
+            return jsonify(body), 200
+
+    elif request.args.get('user_id'):
+        user_id = request.args.get('user_id')
+        query = text("SELECT * FROM accounts \
+                     INNER JOIN user_accounts ON accounts.account_id = user_accounts.account_id \
+                     WHERE user_accounts.user_id = " + user_id)
+        with db.engine.begin() as connection:
+            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            body = {
+                "message": "Accounts retrieved successfully for user " + user_id,
+                "status_code": 200,
+                "accounts": [row._asdict() for row in result]
             }
             return jsonify(body), 200
     else:
