@@ -1,24 +1,4 @@
 ### **Website Security Research Project**  
-⚠️ **Warning!** This is the **SQL injection vulnerable branch**. Use this branch to explore SQL injection vulnerabilities. The more secure branch is named **"sql_injection_secure"**.
-
----
-
-### **Branches**
-Before setting up the environment and running the application, note that this project uses **git branches** to demonstrate different levels of security.  
-
-The general naming convention is:
-- `[attack method]_secure` → More secure version
-- `[attack method]_vulnerable` → Vulnerable version
-
-To run the application with an **SQL injection vulnerability**, after cloning the repo, run:
-```bash
-git fetch
-git checkout sql_injection_vulnerable
-git pull origin sql_injection_vulnerable
-```
-Then, follow the setup instructions below.
-
----
 
 ### **Set Up Instructions to Test**
 The first steps to get the project running are to create a **virtual environment**.
