@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import {useRouter } from 'vue-router'
 import LogoutButton from './LogoutButton.vue'
+import VulnerabilityForm from './VulnerabilityForm.vue';
 
 const router = useRouter();
 
@@ -12,7 +13,9 @@ onMounted(() => {
 
 <template>
     <div id="menu">
+
         <div id="linkContainer">
+            <VulnerabilityForm />
             <router-link to="/adminDashboard">Dashboard</router-link>
             <router-link to="userProfile">Profile</router-link>
             <LogoutButton />

@@ -76,7 +76,6 @@ onMounted(async () => {
 </script>
 
 <template>
-	<Menu />
 	<div class="greetings">
 		<h3>Admin Dashboard</h3>
 		<p>Hello {{ user_name }}</p>
