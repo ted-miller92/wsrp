@@ -7,12 +7,14 @@ import LoginPage from "./components/LoginPage.vue";
 import RegisterPage from "./components/RegisterPage.vue";
 import AdminDashboard from "./components/AdminDashboard.vue";
 import CustomerDashboard from "./components/CustomerDashboard.vue";
+import HomeScreen from "./components/HomeScreen.vue";
 import "./assets/main.css"; // ✅ Ensure this line is present
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: "/", component: LoginPage }, // ✅ Now using LoginPage as the home page
+    { path: "/", component: HomeScreen }, // Show HomeScreen at root path
+    { path: "/home", redirect: "/" }, // Redirect /home to root path
     { path: "/register", component: RegisterPage },
     { path: "/login", component: LoginPage },
     { path: "/adminDashboard", component: AdminDashboard },
