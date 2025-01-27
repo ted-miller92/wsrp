@@ -46,7 +46,7 @@ onMounted(() => {
       if (data.user_type == "EMPLOYEE") {
         router.push("/adminDashboard");
       } else {
-        router.push("/home");
+        router.push("/customerDashboard");
       }
     }
   }
