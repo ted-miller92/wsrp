@@ -1,6 +1,6 @@
 <template>
   <div class="home-layout">
-    <NavBar />
+    <!-- <NavBar /> -->
     <MarketDashboard />
 
     <div class="main-content">

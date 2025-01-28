@@ -24,6 +24,19 @@ const router = createRouter({
   ],
 });
 
+// Add a global beforeEach guard
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("access_token");
+  const isLoggedIn = !!token;
+
+  // If the user is not logged in and tries to access a protected route, redirect to login
+  if (!isLoggedIn && (to.path === "/adminDashboard" || to.path === "/customerDashboard")) {
+    next("/login");
+  } else {
+    next();
+  }
+});
+
 const app = createApp(App);
 app.use(router);
 app.use(createPinia());

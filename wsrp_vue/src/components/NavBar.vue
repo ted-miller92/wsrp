@@ -1,3 +1,20 @@
+<script setup>
+import { computed, ref, onMounted, onUnmounted, watch } from "vue";
+import { useRoute } from "vue-router";
+import LogoutButton from "./LogoutButton.vue";
+
+defineProps({
+  isLoggedIn: {
+    type: Boolean,
+    required: true,
+  },
+}
+)
+
+const route = useRoute();
+const currentRoute = computed(() => route.path);
+</script>
+
 <template>
   <nav class="nav-bar">
     <div class="nav-links">
@@ -22,17 +39,12 @@
       >
         Register
       </router-link>
+      <div v-if="isLoggedIn">
+        <LogoutButton />
+      </div>
     </div>
   </nav>
 </template>
-
-<script setup>
-import { computed } from "vue";
-import { useRoute } from "vue-router";
-
-const route = useRoute();
-const currentRoute = computed(() => route.path);
-</script>
 
 <style scoped>
 .nav-bar {
