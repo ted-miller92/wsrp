@@ -7,6 +7,7 @@ import LoginPage from "./components/LoginPage.vue";
 import RegisterPage from "./components/RegisterPage.vue";
 import AdminDashboard from "./components/AdminDashboard.vue";
 import CustomerDashboard from "./components/CustomerDashboard.vue";
+import UserProfile from "./components/UserProfile.vue";
 import HomeScreen from "./components/HomeScreen.vue";
 import "./assets/main.css"; // ✅ Ensure this line is present
 
@@ -19,6 +20,7 @@ const router = createRouter({
     { path: "/login", component: LoginPage },
     { path: "/adminDashboard", component: AdminDashboard },
     { path: "/customerDashboard", component: CustomerDashboard },
+    { path: "/userProfile", component: UserProfile },
   ],
 });
 

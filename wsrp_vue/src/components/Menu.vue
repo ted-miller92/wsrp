@@ -14,7 +14,7 @@ onMounted(() => {
     <div id="menu">
         <div id="linkContainer">
             <router-link to="/adminDashboard">Dashboard</router-link>
-            <router-link to="userProfile">Profile</router-link>
+            <router-link to="/userProfile">Profile</router-link>
             <LogoutButton />
         </div>
     </div>  
