@@ -1,7 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import NavBar from '../components/NavBar.vue';
 import {jwtDecode} from 'jwt-decode'
-import NavBar from './NavBar.vue';
+import { ref, onMounted } from 'vue';
+import AdminDashboard from '@/components/AdminDashboard.vue';
+import CustomerDashboard from '@/components/CustomerDashboard.vue';
 
 // parse the user_name from the current jwt token
 const decodedToken = jwtDecode(localStorage.getItem('access_token'));
@@ -18,13 +20,12 @@ const options = {
 		'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
 	},
 }
-
 const fetchUserProfile = async () => {
 	try {
 		const response = await fetch('http://127.0.0.1:5000/api/users?user_name=\'' + user_name + '\'', options)
 		if (response.ok) {
 			userProfile.value = await response.json();
-			console.log('User profile:', userProfile.value); // Add logging
+			console.log('User profile:', userProfile); // Add logging
 		} else {
 			console.error('Failed to fetch profile:', response.status);
 		}
@@ -32,28 +33,25 @@ const fetchUserProfile = async () => {
 		console.error('Error fetching profile:', error);
 	}
 }
-
 onMounted(async () => {
 	await fetchUserProfile(); // Fetch user profile
 });
 </script>
 
 <template>
-	<NavBar/>
+	<NavBar />
 	<div class="greetings">
-		<h3>User Profile</h3>
+		<h3>Dashboard</h3>
 		<p>Hello {{ user_name }}</p>
 	</div>
-
-	<div class="item" v-if="userProfile">
-		<p>User type: {{ userProfile.user.user_type }}</p>
-		<p>First name: {{ userProfile.user.first_name }}</p>
-		<p>Last name: {{ userProfile.user.last_name }}</p>
-		<p>Email: {{ userProfile.user.email }}</p>
-	</div>
-	<div v-else>
-		<p>Loading profile...</p>
-	</div>
+    <div v-if="userProfile">
+        <div v-if="userProfile.user.user_type === 'EMPLOYEE'">
+            <AdminDashboard :userProfile="userProfile"/>
+        </div>
+        <div v-else>
+            <CustomerDashboard :userProfile="userProfile"/>
+        </div>
+    </div>
 </template>
 
 <style scoped>
@@ -74,6 +72,7 @@ h3 {
 }
 
 @media (min-width: 1024px) {
+
 	.greetings h1,
 	.greetings h3 {
 		text-align: left;

@@ -5,7 +5,7 @@ import NavBar from "./NavBar.vue";
 </script>
 
 <template>
-  <!-- <NavBar /> -->
+  <NavBar />
   <header>
     <div class="wrapper">
       <Welcome msg="Gold Standard Bank" />

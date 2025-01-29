@@ -1,9 +1,18 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import {jwtDecode} from 'jwt-decode'
-import Menu from './Menu.vue'
 import TransactionList from './TransactionList.vue';
 import AccountsList from './AccountsList.vue';
+
+const props = defineProps(
+	{
+		userProfile: {
+			type: Object,
+			required: true
+		}
+	}
+)
+console.log(props.userProfile.user.user_name)
 
 // parse the user_name from the current jwt token
 const decodedToken = jwtDecode(localStorage.getItem('access_token'));
@@ -56,22 +65,14 @@ const fetchAccounts = async () => {
 	}
 };
 
-// onMounted(() => {
-//     setTimeout(() => fetchTransactions(), 1000);
-// 	setTimeout(() => fetchAccounts(), 1000);
-// });
+onMounted(async () => {
+	fetchTransactions(),
+	fetchAccounts()
+});
 
-onMounted(fetchTransactions(), fetchAccounts());
 </script>
 
 <template>
-	<!-- <Menu /> -->
-	<div class="greetings">
-		<h1 class="green">{{ msg }}</h1>
-		<h3>Admin Dashboard</h3>
-		<p>Hello {{ user_name }}</p>
-	</div>
-
 	<div class="item">
 		<p>Here are all transactions:</p>
 		<TransactionList v-if="!transactionsLoading && transactions" :data="transactions.transactions" />

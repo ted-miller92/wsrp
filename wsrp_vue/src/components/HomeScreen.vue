@@ -1,6 +1,12 @@
+<script setup>
+import Welcome from "./Welcome.vue";
+import MarketDashboard from "./MarketDashboard.vue";
+import NavBar from "./NavBar.vue";
+</script>
+
 <template>
   <div class="home-layout">
-    <!-- <NavBar /> -->
+    <NavBar />
     <MarketDashboard />
 
     <div class="main-content">
@@ -85,12 +91,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import Welcome from "./Welcome.vue";
-import MarketDashboard from "./MarketDashboard.vue";
-import NavBar from "./NavBar.vue";
-</script>
 
 <style scoped>
 .home-layout {

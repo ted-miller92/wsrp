@@ -41,13 +41,7 @@ onMounted(() => {
       // Note: Storing as a cookie is perhaps better than local storage
       // Note: It may be better in the future to store it using a state management tool like Pinia
       localStorage.setItem("access_token", data.access_token);
-
-      // A not very secure way to do it
-      if (data.user_type == "EMPLOYEE") {
-        router.push("/adminDashboard");
-      } else {
-        router.push("/customerDashboard");
-      }
+      router.push("/dashboard");
     }
   }
   loginButton.addEventListener("click", login);

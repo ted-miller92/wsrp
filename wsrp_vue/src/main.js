@@ -9,6 +9,8 @@ import AdminDashboard from "./components/AdminDashboard.vue";
 import CustomerDashboard from "./components/CustomerDashboard.vue";
 import UserProfile from "./components/UserProfile.vue";
 import HomeScreen from "./components/HomeScreen.vue";
+// import Dashboard from "./components/Dashboard.vue";
+import DashboardLayout from "./layouts/DashboardLayout.vue";
 import "./assets/main.css"; // ✅ Ensure this line is present
 
 const router = createRouter({
@@ -21,24 +23,15 @@ const router = createRouter({
     { path: "/adminDashboard", component: AdminDashboard },
     { path: "/customerDashboard", component: CustomerDashboard },
     { path: "/userProfile", component: UserProfile },
+    { path: "/dashboard", component: DashboardLayout }
   ],
 });
 
-// Add a global beforeEach guard
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("access_token");
-  const isLoggedIn = !!token;
 
-  // If the user is not logged in and tries to access a protected route, redirect to login
-  if (!isLoggedIn && (to.path === "/adminDashboard" || to.path === "/customerDashboard")) {
-    next("/login");
-  } else {
-    next();
-  }
-});
-
+// Use pinia for state management (isLoggedIn for one)
+// const pinia = createPinia();
 const app = createApp(App);
+// app.use(pinia);
 app.use(router);
-app.use(createPinia());
 
 app.mount("#app");
