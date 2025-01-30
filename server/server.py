@@ -267,8 +267,8 @@ def transfer_money():
     amount = data.get("amount")
 
     # Directly execute SQL query (no authentication check)
-    query = text(f"UPDATE accounts SET balance = balance - {amount} WHERE account_id = {from_account};")
-    query2 = text(f"UPDATE accounts SET balance = balance + {amount} WHERE account_id = {to_account};")
+    query = text(f"UPDATE accounts SET account_balance = account_balance - {amount} WHERE account_id = {from_account};")
+    query2 = text(f"UPDATE accounts SET account_balance = account_balance + {amount} WHERE account_id = {to_account};")
 
     with db.engine.begin() as connection:
         connection.execute(query)
