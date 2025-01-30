@@ -7,19 +7,18 @@ from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
+# from flask_wtf.csrf import CSRFProtect # added for CSRF protection in secure endpoints 
+# csrf = CSRFProtect()
 
 # Initialize the Flask app
 app = Flask(__name__)
-jwt = JWTManager(app)
+
 # Flask JWT Configuration
 app.config['JWT_SECRET_KEY'] = 'secret_key' # change this and save in .env file
 
-# This is so we can test locally (send token over http instead of only https)
-app.config['JWT_COOKIE_SECURE'] = False
-
 # allow JWT to be sent in cookies
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-
+jwt = JWTManager(app)
 
 # Enable Cross-Origin Resource Sharing to allow requests from different domains
 CORS(app)
@@ -39,7 +38,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tra
 db = SQLAlchemy(app)
 
 
-# Added root route 1-18
+# Brett added server root route for default URL, on 1-18
 @app.route('/')
 def home():
     """Returns a confirmation that the server is running"""
@@ -52,7 +51,40 @@ def index():
     """Returns a confirmation that the API is running"""
     return "API is up and running"
 
-       
+# Define a route to handle user-related operations
+@app.route('/api/users', methods=['GET', 'POST'])
+def get_users():
+    """
+    Handles retrieving all users (GET) or querying for a specific user (POST).
+    Note: This route is more secure from SQL injection attacks than the route in the "sql_injection_vulnerable" branch
+    """
+    if request.method == 'GET':
+        # Query to retrieve all users from the 'users' table
+        query = text("SELECT * FROM users")
+        with db.engine.begin() as connection:
+            result = connection.execute(query).fetchall()  # Fetch all rows from the query result
+            return [row._asdict() for row in result]  # Return results as a list of dictionaries
+
+    elif request.method == 'POST':
+        # Parse JSON data from the request body
+        data = request.get_json()
+
+        # Determine whether to query by user_name or user_id
+        if data.get("user_name"):
+            user_name = data.get("user_name")
+
+            # strip any unallowed characters
+            user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
+
+            user = db.session.query(db.Users).filter(db.Users.user_name == user_name).first()
+            return user
+        elif data.get("user_id"):
+            user_id = data.get("user_id")
+            user = db.session.query(db.Users).filter(db.Users.user_id == user_id).first()
+            return user
+        else:
+            return {"message": "Invalid request", "status_code": 400}
+        
 # Define a route for user login
 @app.route('/api/auth/login', methods=['POST'])
 def login():
@@ -100,8 +132,6 @@ def login():
             "user_type": result[0].user_type,
             "access_token": access_token
             })
-        
-        set_access_cookies(response, access_token)
 
         # Note: In other iterations, it may be better to store the JWT in a cookie to
         # protect from CSRF attacks
@@ -165,7 +195,7 @@ def register():
         return jsonify(body), 200
 
 @app.route('/api/auth/logout', methods=['POST'])
-@jwt_required() 
+@jwt_required()
 def logout():
     """Destroys/nullifies the jwt token
     This endpoint is only used with the version of the server that uses cookies for
@@ -178,36 +208,9 @@ def logout():
     unset_jwt_cookies(response)
     return response
 
-# Define a route to handle user-related operations
-@app.route('/api/users', methods=['GET', 'POST'])
-def get_users():
-    """
-    Handles retrieving all users (GET) or querying for a specific user (POST).
-    Note: This route is more secure from SQL injection attacks than the route 
-    defined in the "sql_injection_vulnerable" branch
-    """
-    if request.method == 'GET':
-        if request.args.get('user_name'):
-            user_name = request.args.get('user_name')
-            query = text("SELECT * FROM users WHERE user_name = " + user_name)
-            with db.engine.begin() as connection:
-                result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-                body = {
-                    "message": "User Information retrieved successfully",
-                    "status_code": 200,
-                    "user": result[0]._asdict()
-                }
-                return jsonify(body), 200
-        else:
-            # Query to retrieve all users from the 'users' table
-            query = text("SELECT * FROM users")
-            with db.engine.begin() as connection:
-                result = connection.execute(query).fetchall()  # Fetch all rows from the query result
-                return [row._asdict() for row in result]  # Return results as a list of dictionaries
-
 
 @app.route('/api/accounts', methods=['GET'])
-# @jwt_required() # uncomment this line if you want to use JWT token authentication
+@jwt_required()
 def get_account():
     """
     Retrieves an account from the 'accounts' table based on the provided account_id.
@@ -221,20 +224,6 @@ def get_account():
                 "message": "Account retrieved successfully",
                 "status_code": 200,
                 "acount": result[0]._asdict()
-            }
-            return jsonify(body), 200
-
-    elif request.args.get('user_id'):
-        user_id = request.args.get('user_id')
-        query = text("SELECT * FROM accounts \
-                     INNER JOIN user_accounts ON accounts.account_id = user_accounts.account_id \
-                     WHERE user_accounts.user_id = " + user_id)
-        with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            body = {
-                "message": "Accounts retrieved successfully for user " + user_id,
-                "status_code": 200,
-                "accounts": [row._asdict() for row in result]
             }
             return jsonify(body), 200
     else:
@@ -252,72 +241,44 @@ def get_account():
 
 # Define a route to retrieve transaction data
 @app.route('/api/transactions', methods=['GET'])
-# @jwt_required() # uncomment this if you want to use JWT token authentication
+@jwt_required()
 def get_transactions():
     """
-    Retrieves transactions from the 'transactions' table.
+    Retrieves all transactions from the 'transactions' table.
     """
-    if request.args.get('account_id'):
-        account_id = request.args.get('account_id')
-        query = text("SELECT * FROM transactions WHERE account_id = " + account_id)
-        with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            body = {
-                "message": "Transactions retrieved successfully for account " + account_id,
-                "status_code": 200,
-                "transactions": [row._asdict() for row in result]
-            }
-            return jsonify(body), 200
-    elif request.args.get('user_id'):
-        user_id = request.args.get('user_id')
-        query = text("SELECT * FROM transactions \
-                     INNER JOIN accounts ON transactions.account_id = accounts.account_id \
-                     INNER JOIN user_accounts ON accounts.account_id = user_accounts.account_id \
-                     WHERE user_accounts.user_id = " + user_id)
-        with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            body = {
-                "message": "Transactions retrieved successfully for account " + user_id,
-                "status_code": 200,
-                "transactions": [row._asdict() for row in result]
-            }
-            return jsonify(body), 200
-    elif request.args.get('user_name'):
-        user_name = request.args.get('user_name')
-        query = text("SELECT * FROM transactions \
-                     INNER JOIN accounts ON transactions.account_id = accounts.account_id \
-                     INNER JOIN user_accounts ON accounts.account_id = user_accounts.account_id \
-                     INNER JOIN users ON user_accounts.user_id = users.user_id \
-                     WHERE users.user_name = " + user_name)
-        with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            body = {
-                "message": "Transactions retrieved successfully for user " + user_name,
-                "status_code": 200,
-                "transactions": [row._asdict() for row in result]
-            }
-            return jsonify(body), 200
-    elif request.args.get('transaction_id'):
-        transaction_id = request.args.get('transaction_id')
-        query = text("SELECT * FROM transactions WHERE transaction_id = " + transaction_id)
-        with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            body = {
-                "message": "Transaction details retrieved successfully for transaction " + transaction_id,
-                "status_code": 200,
-                "transactions": [row._asdict() for row in result]
-            }
-            return jsonify(body), 200
-    else:
-        query = text("SELECT * FROM transactions")  # SQL query to fetch all transactions
-        with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
-            body = {
-                "message": "All transactions retrieved successfully",
-                "status_code": 200,
-                "transactions": [row._asdict() for row in result]
-            }
-            return jsonify(body), 200
+    query = text("SELECT * FROM transactions")  # SQL query to fetch all transactions
+    with db.engine.begin() as connection:
+        result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+        return [row._asdict() for row in result]  # Return results as a list of dictionaries
+    
+
+
+# Insecure money transfer 
+@app.route('/api/transfer', methods=['POST'])
+# @csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
+def transfer_money():
+    """
+    Simulates a CSRF-vulnerable money transfer.
+    This endpoint allows unauthorized transactions from external sites.
+    """
+    data = request.get_json()
+    from_account = data.get("from_account")
+    to_account = data.get("to_account")
+    amount = data.get("amount")
+
+    # Directly execute SQL query (no authentication check)
+    query = text(f"UPDATE accounts SET balance = balance - {amount} WHERE account_id = {from_account};")
+    query2 = text(f"UPDATE accounts SET balance = balance + {amount} WHERE account_id = {to_account};")
+
+    with db.engine.begin() as connection:
+        connection.execute(query)
+        connection.execute(query2)
+
+    return jsonify({"message": "Transfer successful", "status_code": 200})
+
+
+
+
 
 # Run the application in debug mode (for development purposes)
 if __name__ == '__main__':
