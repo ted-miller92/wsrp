@@ -7,11 +7,14 @@ from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
-# from flask_wtf.csrf import CSRFProtect # added for CSRF protection in secure endpoints 
-# csrf = CSRFProtect()
+from flask_wtf.csrf import CSRFProtect # added for CSRF protection in secure endpoints 
+
 
 # Initialize the Flask app
 app = Flask(__name__)
+
+# CSRF global protection 
+csrf = CSRFProtect(app)
 
 # Flask JWT Configuration
 app.config['JWT_SECRET_KEY'] = 'secret_key' # change this and save in .env file
@@ -255,7 +258,7 @@ def get_transactions():
 
 # Insecure money transfer 
 @app.route('/api/transfer', methods=['POST'])
-# @csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
+@csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
 def transfer_money():
     """
     Simulates a CSRF-vulnerable money transfer.
@@ -277,7 +280,29 @@ def transfer_money():
     return jsonify({"message": "Transfer successful", "status_code": 200})
 
 
+# Secure money transfer with CSRF protection 
+@app.route('/api/secure-transfer', methods=['POST'])
+@jwt_required()
+def secure_transfer():
+    """
+    Secure version of the money transfer API using CSRF tokens and JWT authentication.
+    """
+    data = request.get_json()
+    from_account = data.get("from_account")
+    to_account = data.get("to_account")
+    amount = data.get("amount")
 
+    if not from_account or not to_account or not amount:
+        return jsonify({"message": "Invalid data", "status_code": 400}), 400
+
+    query = text("UPDATE accounts SET account_balance = account_balance - :amount WHERE account_id = :from_account")
+    query2 = text("UPDATE accounts SET account_balance = account_balance + :amount WHERE account_id = :to_account")
+
+    with db.engine.begin() as connection:
+        connection.execute(query, {"amount": amount, "from_account": from_account})
+        connection.execute(query2, {"amount": amount, "to_account": to_account})
+
+    return jsonify({"message": "Secure transfer successful", "status_code": 200})
 
 
 # Run the application in debug mode (for development purposes)
