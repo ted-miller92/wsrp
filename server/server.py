@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
+from flask_wtf.csrf import CSRFProtect # added for CSRF protection in secure endpoints
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -20,6 +21,8 @@ app.config['JWT_COOKIE_SECURE'] = False
 # allow JWT to be sent in cookies
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 
+# CSRF global protection 
+csrf = CSRFProtect(app)
 
 # Enable Cross-Origin Resource Sharing to allow requests from different domains
 CORS(app)
@@ -54,7 +57,9 @@ def index():
 
        
 # Define a route for user login
+# we will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added 
 @app.route('/api/auth/login', methods=['POST'])
+@csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
 def login():
     """
     Handles user login by validating credentials.
@@ -318,6 +323,59 @@ def get_transactions():
                 "transactions": [row._asdict() for row in result]
             }
             return jsonify(body), 200
+
+
+
+# 2 added API Endpoints for CSRF by Brett below - 
+
+# Insecure money transfer 
+@app.route('/api/transfer', methods=['POST'])
+@csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
+def transfer_money():
+    """
+    Simulates a CSRF-vulnerable money transfer.
+    This endpoint allows unauthorized transactions from external sites.
+    """
+    data = request.get_json()
+    from_account = data.get("from_account")
+    to_account = data.get("to_account")
+    amount = data.get("amount")
+
+    # Directly execute SQL query (no authentication check)
+    query = text(f"UPDATE accounts SET account_balance = account_balance - {amount} WHERE account_id = {from_account};")
+    query2 = text(f"UPDATE accounts SET account_balance = account_balance + {amount} WHERE account_id = {to_account};")
+
+    with db.engine.begin() as connection:
+        connection.execute(query)
+        connection.execute(query2)
+
+    return jsonify({"message": "Transfer successful", "status_code": 200})
+
+
+# Secure money transfer with CSRF protection 
+@app.route('/api/secure-transfer', methods=['POST'])
+@jwt_required()
+def secure_transfer():
+    """
+    Secure version of the money transfer API using CSRF tokens and JWT authentication.
+    """
+    data = request.get_json()
+    from_account = data.get("from_account")
+    to_account = data.get("to_account")
+    amount = data.get("amount")
+
+    if not from_account or not to_account or not amount:
+        return jsonify({"message": "Invalid data", "status_code": 400}), 400
+
+    query = text("UPDATE accounts SET account_balance = account_balance - :amount WHERE account_id = :from_account")
+    query2 = text("UPDATE accounts SET account_balance = account_balance + :amount WHERE account_id = :to_account")
+
+    with db.engine.begin() as connection:
+        connection.execute(query, {"amount": amount, "from_account": from_account})
+        connection.execute(query2, {"amount": amount, "to_account": to_account})
+
+    return jsonify({"message": "Secure transfer successful", "status_code": 200})
+
 
 # Run the application in debug mode (for development purposes)
 if __name__ == '__main__':
