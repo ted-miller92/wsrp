@@ -57,7 +57,9 @@ def index():
 
        
 # Define a route for user login
+# we will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added 
 @app.route('/api/auth/login', methods=['POST'])
+@csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
 def login():
     """
     Handles user login by validating credentials.
