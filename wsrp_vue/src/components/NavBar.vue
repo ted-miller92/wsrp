@@ -1,3 +1,30 @@
+<script setup>
+import LogoutButton from "./LogoutButton.vue";
+import { ref, watch, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const currentRoute = computed(() => router.path);
+
+const isLoggedIn = ref(false);
+
+watch(
+    () => localStorage.getItem("access_token"),
+    () => {
+        updateLoggedIn();
+    }
+);
+const updateLoggedIn = () => {
+    isLoggedIn.value = !!localStorage.getItem("access_token");
+};
+
+onMounted(() => {
+    updateLoggedIn();
+
+});
+
+</script>
+
 <template>
   <nav class="nav-bar">
     <div class="nav-links">
@@ -9,6 +36,7 @@
         Home
       </router-link>
       <router-link
+        v-if="!isLoggedIn"
         to="/login"
         class="nav-link"
         :class="{ active: currentRoute === '/login' }"
@@ -16,23 +44,36 @@
         Login
       </router-link>
       <router-link
+        v-if="!isLoggedIn"
         to="/register"
         class="nav-link"
         :class="{ active: currentRoute === '/register' }"
       >
         Register
       </router-link>
+      <router-link
+        v-if="isLoggedIn"
+        to="/userProfile"
+        class="nav-link"
+        :class="{ active: currentRoute === '/userProfile' }"
+      >
+        Profile
+      </router-link>
+
+      <router-link
+        v-if="isLoggedIn"
+        to="/dashboard"
+        class="nav-link"
+        :class="{ active: currentRoute === '/dashboard' }"
+      >
+       Dashboard
+      </router-link>
+      
+      <LogoutButton v-if="isLoggedIn"/>
+      
     </div>
   </nav>
 </template>
-
-<script setup>
-import { computed } from "vue";
-import { useRoute } from "vue-router";
-
-const route = useRoute();
-const currentRoute = computed(() => route.path);
-</script>
 
 <style scoped>
 .nav-bar {

@@ -1,14 +1,22 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import {jwtDecode} from 'jwt-decode'
-import Menu from './Menu.vue'
 import TransactionList from './TransactionList.vue';
 import AccountsList from './AccountsList.vue';
+
+const props = defineProps(
+	{
+		userProfile: {
+			type: Object,
+			required: true
+		}
+	}
+)
+console.log(props.userProfile.user.user_name)
 
 // parse the user_name from the current jwt token
 const decodedToken = jwtDecode(localStorage.getItem('access_token'));
 const user_name = decodedToken.sub;
-const userProfile = ref(null);
 
 // Data will be loaded into object that includes the list of transactions, response message and response code
 const transactionsLoading = ref(true); // Loading state for transactions
@@ -57,37 +65,18 @@ const fetchAccounts = async (user_id) => {
 	}
 };
 
-const fetchUserProfile = async () => {
-	try {
-		const response = await fetch('http://127.0.0.1:5000/api/users?user_name=\'' + user_name + '\'', options)
-		if (response.ok) {
-			userProfile.value = await response.json();
-			await fetchAccounts(userProfile.value.user.user_id);
-		}
-	} catch (error) {
-		console.error(error);
-	}
-}
-
 onMounted(async () => {
-	await fetchUserProfile(); // Fetch user profile and accounts
 	await fetchTransactions(); // Fetch transactions
+	await fetchAccounts(props.userProfile.user.user_id);
 });
+
 </script>
 
 <template>
-	<Menu />
-	<div class="greetings">
-		<h3>Admin Dashboard</h3>
-		<p>Hello {{ user_name }}</p>
-	</div>
-
 	<div class="item">
 		<p>Here are your transactions:</p>
 		<TransactionList v-if="!transactionsLoading && transactions" :data="transactions.transactions" />
 	</div>
-
-
 	<div class="item">
 		<p>Here are your accounts:</p>
 		<AccountsList v-if="!accountsLoading && accounts" :data="accounts.accounts" />

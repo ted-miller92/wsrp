@@ -9,6 +9,8 @@ import AdminDashboard from "./components/AdminDashboard.vue";
 import CustomerDashboard from "./components/CustomerDashboard.vue";
 import UserProfile from "./components/UserProfile.vue";
 import HomeScreen from "./components/HomeScreen.vue";
+// import Dashboard from "./components/Dashboard.vue";
+import DashboardLayout from "./layouts/DashboardLayout.vue";
 import "./assets/main.css"; // ✅ Ensure this line is present
 
 const router = createRouter({
@@ -21,11 +23,15 @@ const router = createRouter({
     { path: "/adminDashboard", component: AdminDashboard },
     { path: "/customerDashboard", component: CustomerDashboard },
     { path: "/userProfile", component: UserProfile },
+    { path: "/dashboard", component: DashboardLayout }
   ],
 });
 
+
+// Use pinia for state management (isLoggedIn for one)
+// const pinia = createPinia();
 const app = createApp(App);
+// app.use(pinia);
 app.use(router);
-app.use(createPinia());
 
 app.mount("#app");
