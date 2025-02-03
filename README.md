@@ -1,9 +1,11 @@
-### **Website Security Research Project**  
+### **Website Security Research Project**
 
 ### **Set Up Instructions to Test**
+
 The first steps to get the project running are to create a **virtual environment**.
 
 #### **1️⃣ Install VirtualBox**
+
 [Oracle VirtualBox](https://www.virtualbox.org/) is a free tool that lets you run **virtual machines (VMs)** on your computer. You’ll need it to create a separate, controlled environment for this project.
 
 1. Download and install **VirtualBox** from:  
@@ -12,14 +14,16 @@ The first steps to get the project running are to create a **virtual environment
 ---
 
 #### **2️⃣ Install Ubuntu 22.04 LTS (Virtual Machine)**
+
 🖥 **What is Ubuntu & Why are We Using It?**  
 Ubuntu is a popular, free **Linux-based operating system**. We use it because it provides a secure and consistent development environment that closely resembles real-world web servers.
 
 To set up an **Ubuntu virtual machine (VM)**:
+
 1. Download Ubuntu 22.04 LTS (or later) from:  
    🔗 [https://releases.ubuntu.com/jammy/](https://releases.ubuntu.com/jammy/)
 2. Open **VirtualBox**, click **New**, and:
-   - Name: `Ubuntu 22.04` or current 
+   - Name: `Ubuntu 22.04` or current
    - Type: `Linux`
    - Version: `Ubuntu (64-bit)` or appropriate option for your machine
    - Memory: At least **??GB RAM** (recommended)
@@ -30,24 +34,29 @@ To set up an **Ubuntu virtual machine (VM)**:
 ---
 
 #### **3️⃣ Install Required Packages**
+
 Inside the **Ubuntu terminal**, run:
+
 ```bash
 sudo apt update && sudo apt install git python3.10-venv curl -y
 ```
-- `git` → Needed to clone the project repository.  
-- `python3.10-venv` → Creates an isolated Python environment.  
-- `curl` → Fetches files from the web.  
+
+- `git` → Needed to clone the project repository.
+- `python3.10-venv` → Creates an isolated Python environment.
+- `curl` → Fetches files from the web.
 
 ---
 
 #### **4️⃣ Clone This Repository**
+
 Once Ubuntu is set up, **clone the project** into your virtual environment:
+
 ```bash
 git clone https://github.com/ted-miller92/wsrp.git
 cd wsrp
 ```
 
-## Database 
+## Database
 
 Install MySQL:
 
@@ -81,7 +90,7 @@ Set up server
 
 `flask --app server.py run`
 
-At this point you should be able to access the API endpoints in the browser. 
+At this point you should be able to access the API endpoints in the browser.
 
 ## Frontend / Vue
 
@@ -111,7 +120,6 @@ Or build with:
 
 `npm run build`
 
-
 ## Testing it out
 
 The first feature that is "testable" is SQL injection. Open a web browser and navigate to `localhost:5173/login`. In the Username field enter `' OR ''='` with single quotes, as pictured below:
@@ -120,4 +128,4 @@ The first feature that is "testable" is SQL injection. Open a web browser and na
 
 Enter anything for the Password field. Before clicking "Login", open the web browser console (On Firefox, right-click > "Inspect"). After submitting the login form you will not be directed anywhere, but in the console you will see a list of all of the users in the database.
 
-When you switch to the "sql_injection_secure" branch and run the application (using the same steps from above) you will not be able to run this specific attack. 
+When you switch to the "sql_injection_secure" branch and run the application (using the same steps from above) you will not be able to run this specific attack.
