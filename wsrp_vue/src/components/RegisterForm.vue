@@ -1,4 +1,63 @@
-<script setup></script>
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const user_name = ref("");
+const password = ref("");
+const email = ref("");
+const first_name = ref("");
+const last_name = ref("");
+const user_type = ref({
+  EMPLOYEE: "EMPLOYEE",
+  CUSTOMER : "CUSTOMER"
+})
+
+onMounted(() => {
+  const registerButton = document.getElementById("register");
+
+  async function register(event) {
+    event.preventDefault();
+
+    const options = {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "http://127.0.0.1:5000",
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Headers":
+          "Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers",
+      },
+      body: JSON.stringify({
+        user_name: user_name.value,
+        password: password.value,
+        email: email.value,
+        first_name: first_name.value,
+        last_name: last_name.value,
+        user_type: user_type.value
+      }),
+    };
+
+    const response = await fetch(
+      "http://127.0.0.1:5000/api/auth/register",
+      options
+    );
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+
+      // Get the JWT access token
+      // Store it in the local storage
+      // Note: Storing as a cookie is perhaps better than local storage
+      // Note: It may be better in the future to store it using a state management tool like Pinia
+      // localStorage.setItem("access_token", data.access_token);
+      router.push("/login");
+    }
+  }
+  registerButton.addEventListener("click", register);
+})
+</script>
 
 <template>
   <div class="item">
@@ -7,6 +66,22 @@
       <form>
         <label for="username">Username</label>
         <input v-model="user_name" type="text" placeholder="Username" />
+
+        <label for="email">Email</label>
+        <input v-model="email" type="email" placeholder="Email" />
+
+        <label for="first_name">First Name</label>
+        <input v-model="first_name" type="text" placeholder="First Name" />
+
+        <label for="last_name">Last Name</label>
+        <input v-model="last_name" type="text" placeholder="Last Name" />
+
+        <label for="user_type">User type</label>
+        <select v-model="user_type">
+          <option value="CUSTOMER">Customer</option>
+          <option value="EMPLOYEE">EMPLOYEE</option>
+        </select>
+
         <label for="password">Password</label>
         <input v-model="password" type="password" placeholder="Password" />
         <label for="confirm-password">Confirm Password</label>

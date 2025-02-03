@@ -170,6 +170,7 @@ def login_sqli_vuln():
 
 # Define a route to create a new user
 @app.route('/api/auth/register', methods=['POST'])
+@csrf.exempt
 def register():
     """
     Handles user registration.
