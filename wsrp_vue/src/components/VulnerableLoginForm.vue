@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="item">
-      <h2 class="login-title">Vulnerable Login</h2>
+      <h2 class="login-title">SQL Injection Vulnerable Login</h2>
       <form @submit.prevent="login">
         <label for="username">Username</label>
         <input v-model="user_name" type="text" placeholder="Username" />
@@ -14,7 +14,7 @@
     <!-- Dropdown Section for Instructions -->
     <div class="instructions">
       <button @click="toggleInstructions" class="toggle-button">
-        {{ showInstructions ? "Hide Instructions" : "How to use this version" }}
+        {{ showInstructions ? "Hide Instructions" : "Instructions" }}
       </button>
       <div v-if="showInstructions" class="instructions-content">
         <h3>How to Use the SQL Vulnerable Version</h3>

@@ -2,11 +2,13 @@
 import Welcome from "./Welcome.vue";
 import LoginForm from "./LoginForm.vue";
 import VulnerableLoginForm from "./VulnerableLoginForm.vue";
+import VulnerableCSRFForm from "./VulnerableCSRFForm.vue";
 import NavBar from "./NavBar.vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 const isVulnerable = route.query.endpoint === "/api/sqli_vuln/auth/login";
+const isCSRFEnabled = route.query.endpoint === "/api/csrf_vuln/transfer";
 </script>
 
 <template>
@@ -18,8 +20,9 @@ const isVulnerable = route.query.endpoint === "/api/sqli_vuln/auth/login";
   </header>
 
   <main class="login-container">
-    <LoginForm v-if="!isVulnerable" />
-    <VulnerableLoginForm v-else />
+    <LoginForm v-if="!isVulnerable && !isCSRFEnabled" />
+    <VulnerableLoginForm v-else-if="isVulnerable" />
+    <VulnerableCSRFForm v-else-if="isCSRFEnabled" />
   </main>
 </template>
 
