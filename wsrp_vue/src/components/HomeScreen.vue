@@ -22,7 +22,6 @@ import NavBar from "./NavBar.vue";
       </header>
 
       <footer class="dev-team">
-        <!-- Add Vulnerability Toggles Section -->
         <div class="vulnerability-section">
           <h3>Vulnerability Versions</h3>
           <div class="toggle-container">
@@ -71,21 +70,40 @@ import NavBar from "./NavBar.vue";
           </div>
         </div>
 
-        <div class="github-link-container">
-          <a
-            href="https://github.com/ted-miller92/wsrp"
-            target="_blank"
-            class="github-link"
-          >
-            View Project on GitHub
-          </a>
-        </div>
-        <h3>Development Team</h3>
-        <div class="team-members">
-          <span class="member">Ted</span>
-          <span class="member">Scott</span>
-          <span class="member">Aria</span>
-          <span class="member">Brett</span>
+        <div class="footer-content">
+          <div class="team-section">
+            <h3>Development Team</h3>
+            <div class="team-members">
+              <a
+                href="https://github.com/ted-miller92"
+                target="_blank"
+                class="member"
+                >Ted Miller</a
+              >
+              <a href="https://github.com/SDL101" target="_blank" class="member"
+                >Scott Lindsay</a
+              >
+              <a
+                href="https://github.com/acoalson"
+                target="_blank"
+                class="member"
+                >Aria Coalson</a
+              >
+              <a
+                href="https://github.com/CyberSully"
+                target="_blank"
+                class="member"
+                >Brett Sullivan</a
+              >
+              <a
+                href="https://github.com/ted-miller92/wsrp"
+                target="_blank"
+                class="github-link"
+              >
+                View Project on GitHub
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
@@ -96,7 +114,7 @@ import NavBar from "./NavBar.vue";
 .home-layout {
   position: relative;
   min-height: 100vh;
-  padding-top: 80px; /* Increased to accommodate navbar */
+  padding-top: 100px; /* Increased from 80px to add more space */
 }
 
 .main-content {
@@ -148,7 +166,6 @@ import NavBar from "./NavBar.vue";
 
 .github-link-container {
   text-align: center;
-  margin-bottom: 1rem;
 }
 
 .github-link {
@@ -351,5 +368,46 @@ import NavBar from "./NavBar.vue";
 
 .toggle:hover .toggle-label {
   color: var(--bank-gold-light);
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.team-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.team-members {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.dev-team h3 {
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.member,
+.github-link {
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.github-link {
+  margin-left: auto;
+}
+
+/* Add margin to the MarketDashboard component */
+:deep(.market-dashboard) {
+  margin-top: 20px;
 }
 </style>
