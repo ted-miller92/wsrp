@@ -178,7 +178,11 @@ onMounted(async () => {
 .profile-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, var(--bank-gold) 0%, var(--bank-gold-dark) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bank-gold) 0%,
+    var(--bank-gold-dark) 100%
+  );
   border-radius: 50%;
   display: flex;
   align-items: center;

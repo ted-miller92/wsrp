@@ -2,6 +2,28 @@
 import Welcome from "./Welcome.vue";
 import MarketDashboard from "./MarketDashboard.vue";
 import NavBar from "./NavBar.vue";
+import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
+
+const isVulnerable = ref(false);
+const router = useRouter();
+
+const navigateToLogin = () => {
+  const endpoint = isVulnerable.value
+    ? "/api/sqli_vuln/auth/login"
+    : "/api/auth/login";
+  router.push({ path: "/login", query: { endpoint } });
+};
+
+// Watch for changes in the isVulnerable state
+watch(isVulnerable, (newValue) => {
+  console.log(
+    `Vulnerability toggle is now: ${
+      newValue ? "SQL Injection Vulnerable" : "Secure"
+    }`
+  );
+  navigateToLogin(); // Call navigateToLogin whenever the toggle changes
+});
 </script>
 
 <template>
@@ -27,14 +49,14 @@ import NavBar from "./NavBar.vue";
           <div class="toggle-container">
             <div class="toggle-item">
               <label class="toggle">
-                <input type="checkbox" checked disabled />
+                <input type="checkbox" v-model="isVulnerable" />
                 <span class="slider secure"></span>
                 <span class="toggle-label">Default Secure Version</span>
               </label>
             </div>
             <div class="toggle-item">
               <label class="toggle">
-                <input type="checkbox" />
+                <input type="checkbox" v-model="isVulnerable" />
                 <span class="slider"></span>
                 <span class="toggle-label">SQL Injection</span>
               </label>
