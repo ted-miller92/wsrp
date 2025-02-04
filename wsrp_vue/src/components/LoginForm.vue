@@ -5,22 +5,20 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const user_name = ref("");
 const password = ref("");
+const endpoint = ref(
+  router.currentRoute.value.query.endpoint || "/api/auth/login"
+); // Default to secure login
 
 onMounted(() => {
   const loginButton = document.getElementById("login");
 
-  async function login(event) {
+  const login = async (event) => {
     event.preventDefault();
 
     const options = {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "http://127.0.0.1:5000",
-        "Access-Control-Allow-Methods": "*",
-        "Access-Control-Allow-Headers":
-          "Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers",
       },
       body: JSON.stringify({
         user_name: user_name.value,
@@ -29,21 +27,22 @@ onMounted(() => {
     };
 
     const response = await fetch(
-      "http://127.0.0.1:5000/api/auth/login",
+      `http://127.0.0.1:5000${endpoint.value}`,
       options
     );
     if (response.ok) {
       const data = await response.json();
       console.log(data);
-
-      // Get the JWT access token
-      // Store it in the local storage
-      // Note: Storing as a cookie is perhaps better than local storage
-      // Note: It may be better in the future to store it using a state management tool like Pinia
+      // Store the access token in local storage
       localStorage.setItem("access_token", data.access_token);
+      // Redirect to the Customer Dashboard
       router.push("/dashboard");
+    } else {
+      // Handle login error
+      console.error("Login failed");
     }
-  }
+  };
+
   loginButton.addEventListener("click", login);
 });
 </script>

@@ -2,6 +2,32 @@
 import Welcome from "./Welcome.vue";
 import MarketDashboard from "./MarketDashboard.vue";
 import NavBar from "./NavBar.vue";
+import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
+
+const isVulnerable = ref(false);
+const isCSRFEnabled = ref(false);
+const router = useRouter();
+
+const navigateToLogin = () => {
+  const endpoint = isVulnerable.value
+    ? "/api/sqli_vuln/auth/login"
+    : isCSRFEnabled.value
+    ? "/api/csrf_vuln/transfer"
+    : "/api/auth/login";
+  router.push({ path: "/login", query: { endpoint } });
+};
+
+// Watch for changes in the isVulnerable and isCSRFEnabled states
+watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
+  console.log(
+    `Vulnerability toggle is now: ${
+      newVulnerable ? "SQL Injection Vulnerable" : "Secure"
+    }`
+  );
+  console.log(`CSRF toggle is now: ${newCSRF ? "CSRF Vulnerable" : "Secure"}`);
+  navigateToLogin(); // Call navigateToLogin whenever the toggle changes
+});
 </script>
 
 <template>
@@ -27,44 +53,44 @@ import NavBar from "./NavBar.vue";
           <div class="toggle-container">
             <div class="toggle-item">
               <label class="toggle">
-                <input type="checkbox" checked disabled />
+                <input type="checkbox" v-model="isVulnerable" />
                 <span class="slider secure"></span>
                 <span class="toggle-label">Default Secure Version</span>
               </label>
             </div>
             <div class="toggle-item">
               <label class="toggle">
-                <input type="checkbox" />
+                <input type="checkbox" v-model="isVulnerable" />
                 <span class="slider"></span>
                 <span class="toggle-label">SQL Injection</span>
               </label>
             </div>
             <div class="toggle-item">
               <label class="toggle">
-                <input type="checkbox" />
+                <input type="checkbox" v-model="isCSRFEnabled" />
                 <span class="slider"></span>
-                <span class="toggle-label">Vul #2</span>
+                <span class="toggle-label">CSRF</span>
               </label>
             </div>
             <div class="toggle-item">
               <label class="toggle">
                 <input type="checkbox" />
                 <span class="slider"></span>
-                <span class="toggle-label">Vul #3</span>
+                <span class="toggle-label">XSS</span>
               </label>
             </div>
             <div class="toggle-item">
               <label class="toggle">
                 <input type="checkbox" />
                 <span class="slider"></span>
-                <span class="toggle-label">Vul #4</span>
+                <span class="toggle-label">File Upload Vulnerable</span>
               </label>
             </div>
             <div class="toggle-item">
               <label class="toggle">
                 <input type="checkbox" />
                 <span class="slider"></span>
-                <span class="toggle-label">Vul #5</span>
+                <span class="toggle-label">IDOR</span>
               </label>
             </div>
           </div>
