@@ -7,7 +7,16 @@ from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
-from flask_wtf.csrf import CSRFProtect # added for CSRF protection in secure endpoints
+from flask_wtf.csrf import CSRFProtect # added for GLobal CSRF protection, add "@csrf.exempt" to CSRF insecure endpoints 
+
+# Import necessary modules for the brute-force endpoints
+from flask_limiter import Limiter  # Limiter for rate-limiting requests to prevent abuse (e.g., brute-force attacks)
+from flask_limiter.util import get_remote_address  # get_remote_address to get the client IP address for rate-limiting
+import bcrypt  # bcrypt for securely hashing passwords
+from time import sleep  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
+import random  # random for generating random data (e.g., for generating random strings or delays)
+import string  # string for working with string operations (e.g., generating random characters)
+from flask import Response  # Response for creating custom HTTP responses
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -57,7 +66,7 @@ def index():
 
        
 # Define a route for user login
-# we will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added 
+# We will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added 
 @app.route('/api/auth/login', methods=['POST'])
 @csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
 def login():
@@ -74,61 +83,6 @@ def login():
     # strip any unallowed characters
     user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
     password = password.strip("';#$%&*()_+=@/\\|~`")
-
-    # Query to retrieve the user by username
-    query1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
-    with db.engine.begin() as connection:
-        result = connection.execute(query1).fetchall()  # Fetch all matching rows
-
-        # Check if the user exists
-        if len(result) == 0:
-            body = {"message": "User does not exist",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
-
-        # Verify the password (insecure matching)
-        if result[0].password != password:
-            body = {"message": "Invalid Password",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
-
-        # Create an access token
-        # Return user details (user_id and user_type) - also not secure
-        access_token = create_access_token(identity=result[0].user_name)
-
-        response = jsonify({
-            "message": "Login successful",
-            "status_code": 200,
-            "user_id": result[0].user_id, 
-            "user_type": result[0].user_type,
-            "access_token": access_token
-            })
-        
-        set_access_cookies(response, access_token)
-
-        # Note: In other iterations, it may be better to store the JWT in a cookie to
-        # protect from CSRF attacks
-        return response
-
-
-# THIS IS THE SQL INJECTION VULNERABLE LOGIN ENDPOINT
-# we will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added 
-@app.route('/api/sqli_vuln/auth/login', methods=['POST'])
-@csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
-def login_sqli_vuln():
-    """
-    Handles user login by validating credentials.
-    Note: Uses insecure practices such as plain-text password storage and SQL 
-    injection vulnerability.
-    """
-    # Parse JSON data from the request body
-    data = request.get_json()
-    user_name = data.get("user_name")
-    password = data.get("password")
-
-    # This is where we WOULD strip any unallowed characters
 
     # Query to retrieve the user by username
     query1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
@@ -384,7 +338,7 @@ def get_transactions():
 # 2 added API Endpoints for CSRF by Brett below - 
 
 # Insecure money transfer 
-@app.route('/api/csrf_vuln/transfer', methods=['POST'])
+@app.route('/api/transfer', methods=['POST'])
 @csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
 def transfer_money():
     """
@@ -408,7 +362,7 @@ def transfer_money():
 
 
 # Secure money transfer with CSRF protection 
-@app.route('/api/transfer', methods=['POST'])
+@app.route('/api/secure-transfer', methods=['POST'])
 @jwt_required()
 def secure_transfer():
     """
