@@ -12,7 +12,7 @@ const endpoint = ref(
 onMounted(() => {
   const loginButton = document.getElementById("login");
 
-  async function login(event) {
+  const login = async (event) => {
     event.preventDefault();
 
     const options = {
@@ -33,11 +33,15 @@ onMounted(() => {
     if (response.ok) {
       const data = await response.json();
       console.log(data);
-      // Handle successful login (e.g., redirect to dashboard)
+      // Store the access token in local storage
+      localStorage.setItem("access_token", data.access_token);
+      // Redirect to the Customer Dashboard
+      router.push("/dashboard");
     } else {
       // Handle login error
+      console.error("Login failed");
     }
-  }
+  };
 
   loginButton.addEventListener("click", login);
 });

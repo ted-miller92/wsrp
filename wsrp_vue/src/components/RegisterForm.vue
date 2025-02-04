@@ -10,8 +10,8 @@ const first_name = ref("");
 const last_name = ref("");
 const user_type = ref({
   EMPLOYEE: "EMPLOYEE",
-  CUSTOMER : "CUSTOMER"
-})
+  CUSTOMER: "CUSTOMER",
+});
 
 onMounted(() => {
   const registerButton = document.getElementById("register");
@@ -35,7 +35,7 @@ onMounted(() => {
         email: email.value,
         first_name: first_name.value,
         last_name: last_name.value,
-        user_type: user_type.value
+        user_type: user_type.value,
       }),
     };
 
@@ -56,7 +56,7 @@ onMounted(() => {
     }
   }
   registerButton.addEventListener("click", register);
-})
+});
 </script>
 
 <template>
@@ -79,7 +79,7 @@ onMounted(() => {
         <label for="user_type">User type</label>
         <select v-model="user_type">
           <option value="CUSTOMER">Customer</option>
-          <option value="EMPLOYEE">EMPLOYEE</option>
+          <option value="EMPLOYEE">Admin</option>
         </select>
 
         <label for="password">Password</label>

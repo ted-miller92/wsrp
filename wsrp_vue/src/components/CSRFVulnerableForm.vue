@@ -3,10 +3,14 @@
     <div class="item">
       <h2 class="csrf-title">Vulnerable CSRF Form</h2>
       <form @submit.prevent="submitForm">
-        <label for="account">Account ID</label>
-        <input v-model="account_id" type="text" placeholder="Account ID" />
-        <label for="amount">Amount</label>
-        <input v-model="amount" type="number" placeholder="Amount" />
+        <div>
+          <label for="account">Account ID</label>
+          <input v-model="account_id" type="text" placeholder="Account ID" />
+        </div>
+        <div>
+          <label for="amount">Amount</label>
+          <input v-model="amount" type="number" placeholder="Amount" />
+        </div>
         <button type="submit">Transfer</button>
       </form>
     </div>
@@ -148,5 +152,22 @@ const toggleInstructions = () => {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid var(--bank-gold);
   border-radius: 8px;
+  font-size: 0.7rem; /* Set a smaller font size for the dropdown text */
+}
+
+/* Add styles for the code block */
+.instructions-content pre {
+  white-space: pre-wrap; /* Allows the text to wrap */
+  word-wrap: break-word; /* Breaks long words */
+  overflow: auto; /* Adds a scrollbar if necessary */
+}
+
+form div {
+  margin-bottom: 1rem; /* Add space between each title and entry box */
+}
+
+label {
+  margin-bottom: 0.5rem; /* Add space between the label and the input field */
+  margin-right: 1rem; /* Add space to the right of each label */
 }
 </style>
