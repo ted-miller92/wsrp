@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted } from "vue";
 import Welcome from "./Welcome.vue";
 import LoginForm from "./LoginForm.vue";
 import SQLVulnerableForm from "./SQLVulnerableForm.vue";
@@ -9,6 +10,17 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 const isVulnerable = route.query.endpoint === "/api/sqli_vuln/auth/login";
 const isCSRFEnabled = route.query.endpoint === "/api/csrf_vuln/transfer";
+
+// pinia store
+// every component or page that wants to access the store needs the import
+// and to create a const vulnerabilityStore = useVulnerabilityStore();
+// this component simply logs the current state of the store
+import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
+const vulnerabilityStore = useVulnerabilityStore();
+onMounted( () => {
+  console.log("Current value for sqli vulnerable: " + vulnerabilityStore.getSqliVulnerable())
+})
+
 </script>
 
 <template>
