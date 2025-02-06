@@ -42,6 +42,7 @@ onMounted(async () => {
 
 <template>
   <div class="dashboard-layout">
+    <NavBar />
     <div v-if="userProfile">
       <div v-if="userProfile.user.user_type === 'EMPLOYEE'">
         <AdminDashboard :userProfile="userProfile" />

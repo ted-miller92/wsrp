@@ -104,7 +104,6 @@ const accountSummary = computed(() => {
 
 <template>
   <div class="dashboard-wrapper">
-    <NavBar />
     <nav class="side-nav">
       <div class="nav-profile">
         <div class="profile-icon">
