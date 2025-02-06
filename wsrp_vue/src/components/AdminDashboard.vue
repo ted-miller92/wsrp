@@ -1,23 +1,22 @@
 <script setup>
-import { ref, onMounted, computed} from "vue";
-import {jwtDecode} from "jwt-decode";
-import TransactionList from './TransactionList.vue';
+import { ref, onMounted, computed } from "vue";
+import { jwtDecode } from "jwt-decode";
+import TransactionList from "./TransactionList.vue";
 import AccountsList from "./AccountsList.vue";
 import NavBar from "./NavBar.vue";
 
-const props = defineProps(
-	{
-		userProfile: {
-			type: Object,
-			required: true
-		}
-	}
-)
-console.log(props.userProfile.user.user_name)
+const props = defineProps({
+  userProfile: {
+    type: Object,
+    required: true,
+  },
+});
+console.log(props.userProfile.user.user_name);
 
 // parse the user_name from the current jwt token
-const decodedToken = jwtDecode(localStorage.getItem("access_token"));
-const user_name = decodedToken.sub;
+// this might be an "insecure" way of getting current sessio info
+// const decodedToken = jwtDecode(localStorage.getItem("access_token"));
+// const user_name = decodedToken.sub;
 
 // Data will be loaded into object that includes the list of transactions, response message and response code
 const transactionsLoading = ref(true); // Loading state for transactions
@@ -28,47 +27,50 @@ const accountsLoading = ref(true); // Loading state for accounts
 const accounts = ref(null); // Placeholder for the fetched accounts
 
 const options = {
-	method: "GET",
-	headers: {
-		"Content-Type": "application/json",
-		"Access-Control-Allow-Origin": "http://127.0.0.1:5000",
-		"Access-Control-Allow-Methods": "*",
-		"Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers",
-		"Authorization": "Bearer " + localStorage.getItem("access_token"),
-	},
-}
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "http://127.0.0.1:5000",
+    "Access-Control-Allow-Methods": "*",
+    "Access-Control-Allow-Headers":
+      "Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers",
+    Authorization: "Bearer " + localStorage.getItem("access_token"),
+  },
+};
 
 const fetchTransactions = async () => {
-    try {
-        const response = await fetch("http://127.0.0.1:5000/api/transactions", options)
-        if (response.ok) {
-            transactions.value = await response.json();
-            transactionsLoading.value = false;
-        }
-    } catch (error) {
-        console.error(error);
-    } finally {
-		transactionsLoading.value = false; // Set loading to false after data is fetched
-	}
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:5000/api/transactions",
+      options
+    );
+    if (response.ok) {
+      transactions.value = await response.json();
+      transactionsLoading.value = false;
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    transactionsLoading.value = false; // Set loading to false after data is fetched
+  }
 };
 
 const fetchAccounts = async () => {
-    try {
-        const response = await fetch("http://127.0.0.1:5000/api/accounts", options)
-        if (response.ok) {
-            accounts.value = await response.json();
-            accountsLoading.value = false;
-        }
-    } catch (error) {
-        console.error(error);
-    } finally {
-		accountsLoading.value = false; // Set loading to false after data is fetched
-	}
+  try {
+    const response = await fetch("http://127.0.0.1:5000/api/accounts", options);
+    if (response.ok) {
+      accounts.value = await response.json();
+      accountsLoading.value = false;
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    accountsLoading.value = false; // Set loading to false after data is fetched
+  }
 };
 
 onMounted(async () => {
-	fetchTransactions(),
-	fetchAccounts()
+  fetchTransactions(), fetchAccounts();
 });
 
 // Add new computed properties for summary data
@@ -81,14 +83,13 @@ const totalBalance = computed(() => {
 });
 
 const recentTransactions = computed(() => {
-	if (!transactions.value?.transactions) return [];
-	return transactions.value.transactions.slice(0, 10); // Get the last 10 transactions
+  if (!transactions.value?.transactions) return [];
+  return transactions.value.transactions.slice(0, 10); // Get the last 10 transactions
 });
-
 </script>
 
 <template>
-<div class="dashboard-wrapper">
+  <div class="dashboard-wrapper">
     <nav class="side-nav">
       <div class="nav-profile">
         <div class="profile-icon">
@@ -127,7 +128,9 @@ const recentTransactions = computed(() => {
         <div class="welcome-card">
           <div class="welcome-text">
             <h1>Welcome back, {{ props.userProfile.user.first_name }}!</h1>
-            <p class="subtitle">Here is an overview of Gold Standard Bank activities</p>
+            <p class="subtitle">
+              Here is an overview of Gold Standard Bank activities
+            </p>
           </div>
           <div class="total-balance">
             <span class="balance-label">Total Balance </span>
@@ -457,4 +460,3 @@ const recentTransactions = computed(() => {
   }
 }
 </style>
-
