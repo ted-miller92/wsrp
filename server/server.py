@@ -17,6 +17,13 @@ from time import sleep  # sleep to introduce delays (e.g., for brute-force attac
 import random  # random for generating random data (e.g., for generating random strings or delays)
 import string  # string for working with string operations (e.g., generating random characters)
 from flask import Response  # Response for creating custom HTTP responses
+from flask import Flask, request, jsonify
+import mysql.connector
+from flask import Flask, request, jsonify
+from werkzeug.security import generate_password_hash
+import bcrypt
+from sqlalchemy.sql import text
+from server import db  # Import the database connection setup
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -177,6 +184,66 @@ def register():
             "status_code": 200
         }
         return jsonify(body), 200
+    
+
+# Added new secure register route that will store passwords in db after being hashed
+@app.route('/api/auth/secure_register', methods=['POST'])
+def register():
+    """
+    Secure registration that handles user registration with password hashing and SQL injection protection.
+    """
+    # Parse JSON data from the request body
+    data = request.get_json()
+    user_name = data.get("user_name")
+    password = data.get("password")
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    email = data.get("email")
+    user_type = data.get("user_type")
+
+    # Strip any unallowed characters (keep it for extra caution)
+    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
+    password = password.strip("';#$%&*()_+=@/\\|~`")
+    first_name = first_name.strip("';#$%&*()_+=@/\\|~`")
+    last_name = last_name.strip("';#$%&*()_+=@/\\|~`")
+    email = email.strip("';#$%&*()_+=@/\\|~`")
+
+    # Hash the password using bcrypt
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    # Check if the user already exists
+    query_1 = text("SELECT * FROM users WHERE user_name = :user_name;")
+    with db.engine.begin() as connection:
+        result = connection.execute(query_1, {"user_name": user_name}).fetchall()
+
+        if len(result) > 0:
+            body = {"message": "User already exists", "status_code": 401, "result": [row._asdict() for row in result]}
+            return jsonify(body), 401
+
+        # Check if the email already exists
+        query_2 = text("SELECT * FROM users WHERE email = :email;")
+        result = connection.execute(query_2, {"email": email}).fetchall()
+        if len(result) > 0:
+            body = {"message": "Email already exists", "status_code": 401, "result": [row._asdict() for row in result]}
+            return jsonify(body), 401
+
+        # Insert the new user into the 'users' table
+        query_3 = text("""
+            INSERT INTO users (user_name, password, first_name, last_name, email, user_type) 
+            VALUES (:user_name, :password, :first_name, :last_name, :email, :user_type);
+        """)
+        connection.execute(query_3, {
+            "user_name": user_name,
+            "password": hashed_password,
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "user_type": user_type
+        })
+
+        body = {"message": "User created successfully", "status_code": 200}
+        return jsonify(body), 200
+
 
 @app.route('/api/auth/logout', methods=['POST'])
 @jwt_required() 
@@ -384,6 +451,91 @@ def secure_transfer():
         connection.execute(query2, {"amount": amount, "to_account": to_account})
 
     return jsonify({"message": "Secure transfer successful", "status_code": 200})
+
+
+# 2 New API Endpoints for Brute-force below 
+
+# Initialize Flask-Limiter with the app
+limiter = Limiter(
+    get_remote_address,  # Use the client's IP address for rate-limiting
+    app=app,  
+    default_limits=["10 per minute"]  # Set a default limit (adjust as needed)
+)
+
+# Database connection
+def get_db_connection():
+    return mysql.connector.connect(
+        host="localhost",
+        user="server_user",
+        password="server_password",
+        database="banking_db_v0"
+    )
+
+@app.route('/insecure-login', methods=['POST'])
+def insecure_login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({"error": "Missing username or password"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM users WHERE user_name = %s", (username,))
+    user = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if user and user['password'] == password:  # No hashing, making it insecure
+        return jsonify({"message": "Login successful", "user": user['user_name']})
+    else:
+        return jsonify({"error": "Invalid credentials"}), 401  # No brute force protection
+
+
+
+failed_attempts = {}  # Dictionary to track failed login attempts per user
+
+@limiter.limit("3 per minute")  # Stricter rate limit to prevent automated attacks
+@app.route("/secure-login", methods=["POST"])
+def secure_login():
+    """Secure login endpoint with brute-force protection."""
+    global failed_attempts
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    # Simulated stored password
+    stored_password_hash = bcrypt.hashpw(b"securePassword!", bcrypt.gensalt())
+
+    # Check if the user has exceeded failed attempts
+    if username in failed_attempts and failed_attempts[username] >= 3:
+        sleep(5)  # Introduce artificial delay
+        return jsonify({"error": "Too many failed attempts. Try again later."}), 403
+
+    if bcrypt.checkpw(password.encode("utf-8"), stored_password_hash):
+        failed_attempts[username] = 0  # Reset failed attempts on success
+        return jsonify({"message": "Login successful!"}), 200
+    else:
+        failed_attempts[username] = failed_attempts.get(username, 0) + 1
+        sleep(random.uniform(1, 3))  # Introduce random delay to prevent timing attacks
+        return jsonify({"error": "Invalid credentials"}), 401
+
+
+@app.route("/reset-failed-attempts", methods=["POST"])
+def reset_failed_attempts():
+    """Reset the failed login attempts for a specific user."""
+    global failed_attempts
+    data = request.get_json()
+    username = data.get("username")
+
+    if username in failed_attempts:
+        del failed_attempts[username]
+
+    return jsonify({"message": f"Failed attempts for {username} have been reset."}), 200
+
 
 
 # Run the application in debug mode (for development purposes)
