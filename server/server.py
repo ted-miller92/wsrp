@@ -15,15 +15,8 @@ from flask_limiter.util import get_remote_address  # get_remote_address to get t
 import bcrypt  # bcrypt for securely hashing passwords
 from time import sleep  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
 import random  # random for generating random data (e.g., for generating random strings or delays)
-import string  # string for working with string operations (e.g., generating random characters)
-from flask import Response  # Response for creating custom HTTP responses
-from flask import Flask, request, jsonify
 import mysql.connector
-from flask import Flask, request, jsonify
-from werkzeug.security import generate_password_hash
 import bcrypt
-from sqlalchemy.sql import text
-from server import db  # Import the database connection setup
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -185,65 +178,6 @@ def register():
         }
         return jsonify(body), 200
     
-
-# Added new secure register route that will store passwords in db after being hashed
-@app.route('/api/auth/secure_register', methods=['POST'])
-def register():
-    """
-    Secure registration that handles user registration with password hashing and SQL injection protection.
-    """
-    # Parse JSON data from the request body
-    data = request.get_json()
-    user_name = data.get("user_name")
-    password = data.get("password")
-    first_name = data.get("first_name")
-    last_name = data.get("last_name")
-    email = data.get("email")
-    user_type = data.get("user_type")
-
-    # Strip any unallowed characters (keep it for extra caution)
-    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
-    password = password.strip("';#$%&*()_+=@/\\|~`")
-    first_name = first_name.strip("';#$%&*()_+=@/\\|~`")
-    last_name = last_name.strip("';#$%&*()_+=@/\\|~`")
-    email = email.strip("';#$%&*()_+=@/\\|~`")
-
-    # Hash the password using bcrypt
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
-    # Check if the user already exists
-    query_1 = text("SELECT * FROM users WHERE user_name = :user_name;")
-    with db.engine.begin() as connection:
-        result = connection.execute(query_1, {"user_name": user_name}).fetchall()
-
-        if len(result) > 0:
-            body = {"message": "User already exists", "status_code": 401, "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
-
-        # Check if the email already exists
-        query_2 = text("SELECT * FROM users WHERE email = :email;")
-        result = connection.execute(query_2, {"email": email}).fetchall()
-        if len(result) > 0:
-            body = {"message": "Email already exists", "status_code": 401, "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
-
-        # Insert the new user into the 'users' table
-        query_3 = text("""
-            INSERT INTO users (user_name, password, first_name, last_name, email, user_type) 
-            VALUES (:user_name, :password, :first_name, :last_name, :email, :user_type);
-        """)
-        connection.execute(query_3, {
-            "user_name": user_name,
-            "password": hashed_password,
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email,
-            "user_type": user_type
-        })
-
-        body = {"message": "User created successfully", "status_code": 200}
-        return jsonify(body), 200
-
 
 @app.route('/api/auth/logout', methods=['POST'])
 @jwt_required() 
@@ -455,11 +389,11 @@ def secure_transfer():
 
 # 2 New API Endpoints for Brute-force below 
 
-# Initialize Flask-Limiter with the app
+# Initialize Global Flask-Limiter with the app. To apply it to an enpoint, add "@limiter.limit("3 per minute") below "@app.route"
+# Initialize Flask-Limiter with the app (no default limit for all routes)
 limiter = Limiter(
     get_remote_address,  # Use the client's IP address for rate-limiting
-    app=app,  
-    default_limits=["10 per minute"]  # Set a default limit (adjust as needed)
+    app=app
 )
 
 # Database connection
@@ -471,8 +405,11 @@ def get_db_connection():
         database="banking_db_v0"
     )
 
+# Insecure login (no hashing or rate limiting)
 @app.route('/insecure-login', methods=['POST'])
+@csrf.exempt
 def insecure_login():
+    """Insecure login endpoint without brute-force protection, no rate limiting, no hash checks."""
     data = request.json
     username = data.get('username')
     password = data.get('password')
@@ -492,14 +429,15 @@ def insecure_login():
     if user and user['password'] == password:  # No hashing, making it insecure
         return jsonify({"message": "Login successful", "user": user['user_name']})
     else:
-        return jsonify({"error": "Invalid credentials"}), 401  # No brute force protection
+        return jsonify({"error": "Invalid credentials"}), 401
 
 
-
+# Secure login with brute-force protection. Rate-Limiting, tracking failed attempts per IP implemented 
 failed_attempts = {}  # Dictionary to track failed login attempts per user
 
-@limiter.limit("3 per minute")  # Stricter rate limit to prevent automated attacks
 @app.route("/secure-login", methods=["POST"])
+@csrf.exempt
+@limiter.limit("3 per minute")  # Apply rate limiting using the decorator
 def secure_login():
     """Secure login endpoint with brute-force protection."""
     global failed_attempts
@@ -507,15 +445,23 @@ def secure_login():
     username = data.get("username")
     password = data.get("password")
 
-    # Simulated stored password
-    stored_password_hash = bcrypt.hashpw(b"securePassword!", bcrypt.gensalt())
+    # Fetch the stored password hash from the database
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT password FROM users WHERE user_name = %s", (username,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not user:
+        return jsonify({"error": "Invalid credentials"}), 401
 
     # Check if the user has exceeded failed attempts
     if username in failed_attempts and failed_attempts[username] >= 3:
         sleep(5)  # Introduce artificial delay
         return jsonify({"error": "Too many failed attempts. Try again later."}), 403
 
-    if bcrypt.checkpw(password.encode("utf-8"), stored_password_hash):
+    if bcrypt.checkpw(password.encode("utf-8"), user['password'].encode('utf-8')):
         failed_attempts[username] = 0  # Reset failed attempts on success
         return jsonify({"message": "Login successful!"}), 200
     else:
@@ -524,7 +470,10 @@ def secure_login():
         return jsonify({"error": "Invalid credentials"}), 401
 
 
+
+# Reset failed attempts route
 @app.route("/reset-failed-attempts", methods=["POST"])
+@csrf.exempt
 def reset_failed_attempts():
     """Reset the failed login attempts for a specific user."""
     global failed_attempts
@@ -535,6 +484,7 @@ def reset_failed_attempts():
         del failed_attempts[username]
 
     return jsonify({"message": f"Failed attempts for {username} have been reset."}), 200
+
 
 
 
