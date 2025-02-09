@@ -393,7 +393,7 @@ def get_transactions():
 # 2 added API Endpoints for CSRF by Brett below - 
 
 # Insecure money transfer 
-@app.route('/api/transfer', methods=['POST'])
+@app.route('/api/csrf-vuln-transfer', methods=['POST'])
 @csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
 def transfer_money():
     """

@@ -1,7 +1,7 @@
 Testing the Insecure Endpoint
 The insecure endpoint (/api/transfer) is designed to simulate a vulnerable money transfer that does not use CSRF protection. To test this endpoint, you can use tools like Thunder Client or Postman to send a POST request to /api/transfer.
 
-Prepare the Request: Open Thunder Client or Postman, and create a new POST request. The URL will be the base of your application followed by /api/transfer. For example, http://localhost:5000/api/transfer if you're testing locally.
+Prepare the Request: Open Thunder Client or Postman, and create a new POST request. The URL will be the base of your application followed by /api/transfer. For example, http://localhost:5000/api/csrf-vuln-transfer if you're testing locally.
 
 Set the Request Body: In the request body, choose JSON format, and include the following data:
 
