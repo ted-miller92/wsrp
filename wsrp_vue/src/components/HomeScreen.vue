@@ -2,8 +2,21 @@
 import Welcome from "./Welcome.vue";
 import MarketDashboard from "./MarketDashboard.vue";
 import NavBar from "./NavBar.vue";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
+
+// pinia store
+// every component or page that wants to access the store needs the import
+// and to create a const vulnerabilityStore = useVulnerabilityStore();
+// This component logs the current state of the store and toggles it and logs it again
+import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
+const vulnerabilityStore = useVulnerabilityStore();
+onMounted( () => {
+  console.log("Current value for sqli vulnerable: " + vulnerabilityStore.getSqliVulnerable())
+  console.log("Toggling...")
+  vulnerabilityStore.toggleSqliVulnerable()
+  console.log("Current value for sqli vulnerable: " + vulnerabilityStore.getSqliVulnerable())
+})
 
 const isVulnerable = ref(false);
 const isCSRFEnabled = ref(false);

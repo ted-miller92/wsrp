@@ -14,8 +14,9 @@ const props = defineProps({
 console.log(props.userProfile.user.user_name);
 
 // parse the user_name from the current jwt token
-const decodedToken = jwtDecode(localStorage.getItem("access_token"));
-const user_name = decodedToken.sub;
+// this might be an "insecure" way of getting current sessio info
+// const decodedToken = jwtDecode(localStorage.getItem("access_token"));
+// const user_name = decodedToken.sub;
 
 // Data will be loaded into object that includes the list of transactions, response message and response code
 const transactionsLoading = ref(true); // Loading state for transactions
@@ -40,7 +41,7 @@ const options = {
 const fetchTransactions = async () => {
   try {
     const response = await fetch(
-      "http://127.0.0.1:5000/api/transactions?user_name='" + user_name + "'",
+      "http://127.0.0.1:5000/api/transactions?user_name='" + props.userProfile.user.user_name + "'",
       options
     );
     if (response.ok) {
@@ -104,7 +105,6 @@ const accountSummary = computed(() => {
 
 <template>
   <div class="dashboard-wrapper">
-    <NavBar />
     <nav class="side-nav">
       <div class="nav-profile">
         <div class="profile-icon">
