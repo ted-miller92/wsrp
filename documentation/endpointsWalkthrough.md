@@ -1,4 +1,4 @@
-Testing the Insecure Endpoint
+### Testing the Insecure Endpoint
 The insecure endpoint (/api/csrf_vuln_transfer) is designed to simulate a vulnerable money transfer that does not use CSRF protection. To test this endpoint, you can use tools like Thunder Client or Postman to send a POST request to /api/csrf_vuln_transfer.
 
 Prepare the Request: Open Thunder Client or Postman, and create a new POST request. The URL will be the base of your application followed by /api/csrf_vuln_transfer. For example, http://localhost:5000/api/csrf_vuln_transfer if you're testing locally.
@@ -28,9 +28,9 @@ Edit
 }
 This means the endpoint is functioning as expected, without any CSRF protection.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---
 
-Testing the Secure Endpoint
+### Testing the Secure Endpoint
 The secure endpoint (/api/secure_transfer) is designed to simulate a money transfer with CSRF protection in place. To test this endpoint, you need to include a CSRF token in your request.
 
 Fetch the CSRF Token: The CSRF token is typically issued after you log into your application or access a page where the token is included in the cookies. Since your login system isn’t working, you could either temporarily disable CSRF protection or mock a CSRF token for testing.
@@ -66,9 +66,9 @@ Edit
 }
 If the CSRF token is missing or invalid, the server should respond with a 400 or 403 status code, indicating that the CSRF token was either not provided or not valid.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---
 
-1. Insecure Login Endpoint (/insecure_login)
+### 1. Insecure Login Endpoint (/insecure_login)
 This route is a basic, insecure login endpoint without any password hashing, rate-limiting, or brute-force protection. It checks if the provided credentials (username and password) match those stored in the database.
 
 What it does:
@@ -94,9 +94,9 @@ If credentials match the database, you'll receive a 200 response with the messag
 If the credentials are incorrect, you'll get a 401 error with the message Invalid credentials.
 With no rate limiting in place, you can send this request as many times as possible (brute force until getting a right password can be demonstrated later with BurpSuite). 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---
 
-2. Secure Login Endpoint with Brute-force Protection (/secure_login)
+### 2. Secure Login Endpoint with Brute-force Protection (/secure_login)
 This route applies rate-limiting and brute-force protection to secure the login process. It uses Flask-Limiter for rate-limiting and tracks failed login attempts per user.
 
 What it does:
@@ -124,9 +124,9 @@ If credentials are correct, you'll get a 200 response with Login successful.
 If incorrect, the response will be a 401 error with Invalid credentials.
 !!!After three failed attempts from the same IP, you will see a 403 error with the message Too many failed attempts. Try again later..!!!
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---
 
-3. Reset Failed Attempts Endpoint (/reset_failed_attempts)
+### 3. Reset Failed Attempts Endpoint (/reset_failed_attempts)
 This endpoint allows you to reset the failed login attempts for a specific user. It can be useful to reset the counter after an account lockout due to too many failed login attempts.
 
 What it does:
