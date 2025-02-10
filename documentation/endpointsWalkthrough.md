@@ -1,7 +1,7 @@
 Testing the Insecure Endpoint
-The insecure endpoint (/api/transfer) is designed to simulate a vulnerable money transfer that does not use CSRF protection. To test this endpoint, you can use tools like Thunder Client or Postman to send a POST request to /api/transfer.
+The insecure endpoint (/api/csrf_vuln_transfer) is designed to simulate a vulnerable money transfer that does not use CSRF protection. To test this endpoint, you can use tools like Thunder Client or Postman to send a POST request to /api/csrf_vuln_transfer.
 
-Prepare the Request: Open Thunder Client or Postman, and create a new POST request. The URL will be the base of your application followed by /api/transfer. For example, http://localhost:5000/api/csrf-vuln-transfer if you're testing locally.
+Prepare the Request: Open Thunder Client or Postman, and create a new POST request. The URL will be the base of your application followed by /api/csrf_vuln_transfer. For example, http://localhost:5000/api/csrf_vuln_transfer if you're testing locally.
 
 Set the Request Body: In the request body, choose JSON format, and include the following data:
 
@@ -31,11 +31,11 @@ This means the endpoint is functioning as expected, without any CSRF protection.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Testing the Secure Endpoint
-The secure endpoint (/api/secure-transfer) is designed to simulate a money transfer with CSRF protection in place. To test this endpoint, you need to include a CSRF token in your request.
+The secure endpoint (/api/secure_transfer) is designed to simulate a money transfer with CSRF protection in place. To test this endpoint, you need to include a CSRF token in your request.
 
 Fetch the CSRF Token: The CSRF token is typically issued after you log into your application or access a page where the token is included in the cookies. Since your login system isn’t working, you could either temporarily disable CSRF protection or mock a CSRF token for testing.
 
-Prepare the Request: Similar to the insecure endpoint, open Thunder Client or Postman and create a new POST request, but this time to /api/secure-transfer. The URL will be something like http://localhost:5000/api/secure-transfer.
+Prepare the Request: Similar to the insecure endpoint, open Thunder Client or Postman and create a new POST request, but this time to /api/secure-transfer. The URL will be something like http://localhost:5000/api/secure_transfer.
 
 Set the Request Body: In the request body, use the same format as for the insecure endpoint:
 
@@ -68,7 +68,7 @@ If the CSRF token is missing or invalid, the server should respond with a 400 or
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Insecure Login Endpoint (/insecure-login)
+1. Insecure Login Endpoint (/insecure_login)
 This route is a basic, insecure login endpoint without any password hashing, rate-limiting, or brute-force protection. It checks if the provided credentials (username and password) match those stored in the database.
 
 What it does:
@@ -96,7 +96,7 @@ With no rate limiting in place, you can send this request as many times as possi
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-2. Secure Login Endpoint with Brute-force Protection (/secure-login)
+2. Secure Login Endpoint with Brute-force Protection (/secure_login)
 This route applies rate-limiting and brute-force protection to secure the login process. It uses Flask-Limiter for rate-limiting and tracks failed login attempts per user.
 
 What it does:
@@ -110,7 +110,7 @@ Adding a random delay (1-3 seconds) to prevent timing attacks.
 Thunder Client Test:
 
 Set the request method to POST.
-Enter the URL: http://localhost:5000/secure-login.
+Enter the URL: http://localhost:5000/secure_login.
 In the Body tab, select JSON and enter the following example data:
 json
 Copy
@@ -126,7 +126,7 @@ If incorrect, the response will be a 401 error with Invalid credentials.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-3. Reset Failed Attempts Endpoint (/reset-failed-attempts)
+3. Reset Failed Attempts Endpoint (/reset_failed_attempts)
 This endpoint allows you to reset the failed login attempts for a specific user. It can be useful to reset the counter after an account lockout due to too many failed login attempts.
 
 What it does:
@@ -136,7 +136,7 @@ Removes the specified user's entry from the failed_attempts dictionary, which tr
 Thunder Client Test:
 
 Set the request method to POST.
-Enter the URL: http://localhost:5000/reset-failed-attempts.
+Enter the URL: http://localhost:5000/reset_failed_attempts.
 In the Body tab, select JSON and enter the following example data:
 json
 Copy
@@ -150,11 +150,11 @@ If no failed attempts exist for the username, you'll still receive the same succ
 
 
 Rate-Limiting and Brute-Force Protection Overview
-Rate-Limiting: The secure-login endpoint uses Flask-Limiter to restrict the number of login attempts from the same IP address to 3 per minute. This helps prevent automated attacks and protects your server from being overwhelmed by too many requests.
+Rate-Limiting: The secure_login endpoint uses Flask-Limiter to restrict the number of login attempts from the same IP address to 3 per minute. This helps prevent automated attacks and protects your server from being overwhelmed by too many requests.
 
 Brute-Force Protection: Failed login attempts are tracked per user. If a user has failed 3 or more attempts, further attempts from that user will be delayed by 5 seconds (to discourage rapid guessing). This is to prevent brute-force attacks where an attacker might try a lot of passwords in quick succession.
 
-Bcrypt Password Hashing: In the secure-login route, bcrypt is used to compare the hashed password in the database with the password provided by the user. This makes the login more secure, as plaintext passwords are never stored.
+Bcrypt Password Hashing: In the secure_login route, bcrypt is used to compare the hashed password in the database with the password provided by the user. This makes the login more secure, as plaintext passwords are never stored.
 
 Expected Behavior When Testing with Thunder Client
 Insecure Login:

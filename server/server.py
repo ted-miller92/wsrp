@@ -393,7 +393,7 @@ def get_transactions():
 # 2 added API Endpoints for CSRF by Brett below - 
 
 # Insecure money transfer 
-@app.route('/api/csrf-vuln-transfer', methods=['POST'])
+@app.route('/api/csrf_vuln_transfer', methods=['POST'])
 @csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
 def transfer_money():
     """
@@ -417,7 +417,7 @@ def transfer_money():
 
 
 # Secure money transfer with CSRF protection 
-@app.route('/api/secure-transfer', methods=['POST'])
+@app.route('/api/secure_transfer', methods=['POST'])
 @jwt_required()
 def secure_transfer():
     """
@@ -460,7 +460,7 @@ def get_db_connection():
     )
 
 # Insecure login (no hashing or rate limiting)
-@app.route('/insecure-login', methods=['POST'])
+@app.route('/insecure_login', methods=['POST'])
 @csrf.exempt
 def insecure_login():
     """Insecure login endpoint without brute-force protection, no rate limiting, no hash checks."""
@@ -489,7 +489,7 @@ def insecure_login():
 # Secure login with brute-force protection. Rate-Limiting, tracking failed attempts per IP implemented 
 failed_attempts = {}  # Dictionary to track failed login attempts per user
 
-@app.route("/secure-login", methods=["POST"])
+@app.route("/secure_login", methods=["POST"])
 @csrf.exempt
 @limiter.limit("3 per minute")  # Apply rate limiting using the decorator
 def secure_login():
@@ -526,7 +526,7 @@ def secure_login():
 
 
 # Reset failed attempts route
-@app.route("/reset-failed-attempts", methods=["POST"])
+@app.route("/reset_failed_attempts", methods=["POST"])
 @csrf.exempt
 def reset_failed_attempts():
     """Reset the failed login attempts for a specific user."""
