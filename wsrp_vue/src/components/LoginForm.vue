@@ -1,19 +1,33 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 
 const router = useRouter();
 const user_name = ref("");
 const password = ref("");
+
+// load the pinia store so we can access state variables
+const vulnerabilityStore = useVulnerabilityStore();
+
+// Default route to secure login
 const endpoint = ref(
   router.currentRoute.value.query.endpoint || "/api/auth/login"
-); // Default to secure login
+);
 
 onMounted(() => {
+  // log current vulnerability state
+  console.log("Current value for sqli vulnerable: " + vulnerabilityStore.getSqliVulnerable());
+  
   const loginButton = document.getElementById("login");
 
   const login = async (event) => {
     event.preventDefault();
+
+    // check store value for sqli vulnerability
+    if (vulnerabilityStore.getSqliVulnerable() === true) {
+      endpoint.value = "/api/sqli_vuln/auth/login";
+    }
 
     const options = {
       method: "POST",
