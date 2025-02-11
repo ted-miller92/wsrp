@@ -27,6 +27,8 @@ onMounted(() => {
     // check store value for sqli vulnerability
     if (vulnerabilityStore.getSqliVulnerable() === true) {
       endpoint.value = "/api/sqli_vuln/auth/login";
+    } else {
+      endpoint.value = "/api/auth/login";
     }
 
     const options = {
