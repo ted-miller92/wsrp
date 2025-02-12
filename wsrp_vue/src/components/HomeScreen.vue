@@ -11,7 +11,7 @@ import { useRouter } from "vue-router";
 // This component logs the current state of the store and toggles it and logs it again
 import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 const vulnerabilityStore = useVulnerabilityStore();
-onMounted( () => {
+onMounted(() => {
   console.log("Current value for sqli vulnerable: " + vulnerabilityStore.getSqliVulnerable())
   console.log("Toggling...")
   vulnerabilityStore.toggleSqliVulnerable()
@@ -26,16 +26,15 @@ const navigateToLogin = () => {
   const endpoint = isVulnerable.value
     ? "/api/sqli_vuln/auth/login"
     : isCSRFEnabled.value
-    ? "/api/csrf_vuln/transfer"
-    : "/api/auth/login";
+      ? "/api/csrf_vuln/transfer"
+      : "/api/auth/login";
   router.push({ path: "/login", query: { endpoint } });
 };
 
 // Watch for changes in the isVulnerable and isCSRFEnabled states
 watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
   console.log(
-    `Vulnerability toggle is now: ${
-      newVulnerable ? "SQL Injection Vulnerable" : "Secure"
+    `Vulnerability toggle is now: ${newVulnerable ? "SQL Injection Vulnerable" : "Secure"
     }`
   );
   console.log(`CSRF toggle is now: ${newCSRF ? "CSRF Vulnerable" : "Secure"}`);
@@ -52,13 +51,14 @@ watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
       <header>
         <div class="header-container">
           <Welcome msg="Gold Standard Bank" />
-          <div class="login-button-container">
-            <router-link to="/login" class="login-button"
-              >Go to Login</router-link
-            >
-          </div>
+        </div>
+
+        <!-- Button moved below the headers, keeping spacing consistent -->
+        <div class="login-button-container">
+          <router-link to="/login" class="login-button">Go to Login</router-link>
         </div>
       </header>
+
 
       <footer class="dev-team">
         <div class="vulnerability-section">
@@ -113,32 +113,11 @@ watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
           <div class="team-section">
             <h3>Development Team</h3>
             <div class="team-members">
-              <a
-                href="https://github.com/ted-miller92"
-                target="_blank"
-                class="member"
-                >Ted Miller</a
-              >
-              <a href="https://github.com/SDL101" target="_blank" class="member"
-                >Scott Lindsay</a
-              >
-              <a
-                href="https://github.com/acoalson"
-                target="_blank"
-                class="member"
-                >Aria Coalson</a
-              >
-              <a
-                href="https://github.com/CyberSully"
-                target="_blank"
-                class="member"
-                >Brett Sullivan</a
-              >
-              <a
-                href="https://github.com/ted-miller92/wsrp"
-                target="_blank"
-                class="github-link"
-              >
+              <a href="https://github.com/ted-miller92" target="_blank" class="member">Ted Miller</a>
+              <a href="https://github.com/SDL101" target="_blank" class="member">Scott Lindsay</a>
+              <a href="https://github.com/acoalson" target="_blank" class="member">Aria Coalson</a>
+              <a href="https://github.com/CyberSully" target="_blank" class="member">Brett Sullivan</a>
+              <a href="https://github.com/ted-miller92/wsrp" target="_blank" class="github-link">
                 View Project on GitHub
               </a>
             </div>
@@ -153,7 +132,8 @@ watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
 .home-layout {
   position: relative;
   min-height: 100vh;
-  padding-top: 100px; /* Increased from 80px to add more space */
+  padding-top: 100px;
+  /* Increased from 80px to add more space */
 }
 
 .main-content {
@@ -166,21 +146,24 @@ watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap;
+  /* Prevent text wrapping */
 }
 
 .login-button-container {
-  margin-left: 2rem;
+  display: flex;
+  justify-content: left; /* Aligns button with headers */
+  margin-top: 2rem; /* Keep vertical spacing the same */
 }
+
+
 
 .login-button {
   display: inline-block;
   padding: 1rem 2rem;
-  background: linear-gradient(
-    135deg,
-    var(--bank-gold) 0%,
-    var(--bank-gold-dark) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--bank-gold) 0%,
+      var(--bank-gold-dark) 100%);
   color: var(--bank-blue-dark);
   text-decoration: none;
   border-radius: 8px;
@@ -190,17 +173,16 @@ watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
   box-shadow: 0 4px 15px rgba(207, 181, 59, 0.3);
   text-transform: uppercase;
   letter-spacing: 1px;
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap;
+  /* Prevent text wrapping */
 }
 
 .login-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(207, 181, 59, 0.4);
-  background: linear-gradient(
-    135deg,
-    var(--bank-gold-light) 0%,
-    var(--bank-gold) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--bank-gold-light) 0%,
+      var(--bank-gold) 100%);
 }
 
 .github-link-container {
@@ -223,11 +205,9 @@ watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
   height: 2px;
   bottom: 0;
   left: 0;
-  background: linear-gradient(
-    90deg,
-    var(--bank-gold) 0%,
-    var(--bank-gold-light) 100%
-  );
+  background: linear-gradient(90deg,
+      var(--bank-gold) 0%,
+      var(--bank-gold-light) 100%);
   transition: width 0.3s ease;
 }
 
@@ -283,6 +263,7 @@ watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -388,11 +369,11 @@ watch([isVulnerable, isCSRFEnabled], ([newVulnerable, newCSRF]) => {
   background-color: #4caf50;
 }
 
-.toggle input:checked + .slider {
+.toggle input:checked+.slider {
   background-color: var(--bank-gold);
 }
 
-.toggle input:checked + .slider:before {
+.toggle input:checked+.slider:before {
   transform: translateX(20px);
 }
 
