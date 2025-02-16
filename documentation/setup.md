@@ -1,19 +1,15 @@
-# Website Security Research Project
+# Setup Instructions
 
-## Setup Instructions
-
-- [Website Security Research Project](#website-security-research-project)
-  - [Setup Instructions](#setup-instructions)
-    - [1. Virtual Environment](#1-virtual-environment)
-      - [Install VirtualBox](#install-virtualbox)
-      - [Install Ubuntu 22.04 LTS (Virtual Machine)](#install-ubuntu-2204-lts-virtual-machine)
-      - [Install Required Packages](#install-required-packages)
-      - [Clone This Repository](#clone-this-repository)
-    - [2. Database](#2-database)
-    - [3. Server](#3-server)
-    - [4. Front End](#4-front-end)
+- [Setup Instructions](#setup-instructions)
+  - [1. Virtual Environment](#1-virtual-environment)
+    - [Install VirtualBox](#install-virtualbox)
+    - [Install Ubuntu 22.04 LTS (Virtual Machine)](#install-ubuntu-2204-lts-virtual-machine)
+    - [Install Required Packages](#install-required-packages)
+    - [Clone This Repository](#clone-this-repository)
+  - [2. Database](#2-database)
+  - [3. Server](#3-server)
+  - [4. Front End](#4-front-end)
   - [Wrapping up](#wrapping-up)
-    - [Continue to the Exploration Guide to start hacking!](#continue-to-the-exploration-guide-to-start-hacking)
 
 This document walks through step by step the process to run the application on your local machine. Everything needed to install and launch the application is included in this repository. 
 
@@ -33,9 +29,9 @@ There are four main steps to set up this project in order to interact with it:
 
 These steps should be completed in order. 
 
-### 1. Virtual Environment
+## 1. Virtual Environment
 
-#### Install VirtualBox
+### Install VirtualBox
 
 [Oracle VirtualBox](https://www.virtualbox.org/) is a free tool that lets you run **virtual machines (VMs)** on your computer. You’ll need it to create a separate, controlled environment for this project.
 
@@ -44,7 +40,7 @@ These steps should be completed in order.
 
 ---
 
-#### Install Ubuntu 22.04 LTS (Virtual Machine)
+### Install Ubuntu 22.04 LTS (Virtual Machine)
 
 🖥 **What is Ubuntu & Why are We Using It?**  
 Ubuntu is a popular, free **Linux-based operating system**. We use it because it provides a secure and consistent development environment that closely resembles real-world web servers.
@@ -64,7 +60,7 @@ To set up an **Ubuntu virtual machine (VM)**:
 
 ---
 
-#### Install Required Packages
+### Install Required Packages
 
 Inside the **Ubuntu terminal**, run:
 
@@ -78,7 +74,7 @@ sudo apt update && sudo apt install git python3.10-venv curl -y
 
 ---
 
-#### Clone This Repository
+### Clone This Repository
 
 Once Ubuntu is set up, **clone the project** into your virtual environment:
 
@@ -87,7 +83,7 @@ git clone https://github.com/ted-miller92/wsrp.git
 cd wsrp
 ```
 
-### 2. Database
+## 2. Database
 
 Install MySQL:
 
@@ -111,7 +107,7 @@ Create the database with the script, then exit MySQL:
 
 `exit;`
 
-### 3. Server
+## 3. Server
 
 Navigate to the server directory with `cd server`.
 
@@ -129,7 +125,7 @@ Install the required packagegs and then run the app:
 
 At this point you should be able to access the API endpoints in the browser. 
 
-### 4. Front End
+## 4. Front End
 
 Navigate to the `wsrp_vue` directory.
 
@@ -161,4 +157,4 @@ You should now be able to access the application at the URL printed in the termi
 
 Now you should be able to access the application at the URL printed in the terminal. 
 
-### Continue to the [Exploration Guide](exploration_guide.md) to start hacking!
+**Continue to the [Exploration Guide](exploration_guide.md) to start hacking!**
