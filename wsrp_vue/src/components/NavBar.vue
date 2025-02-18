@@ -6,27 +6,28 @@ import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 
 const router = useRouter();
 const currentRoute = computed(() => router.path);
-
 const isLoggedIn = ref(false);
+const isCSRFEnabled = ref(false);
+const isXSSEnabled = ref(false);
+const isFileUploadVulnerable = ref(false);
+const isIDOREnabled = ref(false);
 
 // load the pinia store so we can access state variables
 const vulnerabilityStore = useVulnerabilityStore();
 
 watch(
-    () => localStorage.getItem("access_token"),
-    () => {
-        updateLoggedIn();
-    }
+  () => localStorage.getItem("access_token"),
+  () => {
+    updateLoggedIn();
+  }
 );
 const updateLoggedIn = () => {
-    isLoggedIn.value = !!localStorage.getItem("access_token");
+  isLoggedIn.value = !!localStorage.getItem("access_token");
 };
 
 onMounted(() => {
-    updateLoggedIn();
-
+  updateLoggedIn();
 });
-
 </script>
 
 <template>
@@ -70,16 +71,59 @@ onMounted(() => {
         class="nav-link"
         :class="{ active: currentRoute === '/dashboard' }"
       >
-       Dashboard
+        Dashboard
       </router-link>
-      
-      <LogoutButton v-if="isLoggedIn"/>
+
+      <LogoutButton v-if="isLoggedIn" />
     </div>
     <div class="toggle-container">
       <div class="toggle-item">
         <label class="toggle">
-          <span class="toggle-label">SQL Injection {{ vulnerabilityStore.sqliVulnerable ? 'Vulnerable' : 'Secure'  }} </span>
+          <span class="toggle-label">
+            SQL Injection
+            {{ vulnerabilityStore.sqliVulnerable ? "Vulnerable" : "Secure" }}
+          </span>
           <input type="checkbox" v-model="vulnerabilityStore.sqliVulnerable" />
+          <span class="slider secure"></span>
+        </label>
+      </div>
+      <div class="toggle-item">
+        <label class="toggle">
+          <span class="toggle-label">
+            CSRF
+            {{ isCSRFEnabled ? "Vulnerable" : "Secure" }}
+          </span>
+          <input type="checkbox" v-model="isCSRFEnabled" />
+          <span class="slider secure"></span>
+        </label>
+      </div>
+      <div class="toggle-item">
+        <label class="toggle">
+          <span class="toggle-label">
+            XSS
+            {{ isXSSEnabled ? "Vulnerable" : "Secure" }}
+          </span>
+          <input type="checkbox" v-model="isXSSEnabled" />
+          <span class="slider secure"></span>
+        </label>
+      </div>
+      <div class="toggle-item">
+        <label class="toggle">
+          <span class="toggle-label">
+            File Upload
+            {{ isFileUploadVulnerable ? "Vulnerable" : "Secure" }}
+          </span>
+          <input type="checkbox" v-model="isFileUploadVulnerable" />
+          <span class="slider secure"></span>
+        </label>
+      </div>
+      <div class="toggle-item">
+        <label class="toggle">
+          <span class="toggle-label">
+            IDOR
+            {{ isIDOREnabled ? "Vulnerable" : "Secure" }}
+          </span>
+          <input type="checkbox" v-model="isIDOREnabled" />
           <span class="slider secure"></span>
         </label>
       </div>
@@ -89,6 +133,9 @@ onMounted(() => {
 
 <style scoped>
 .nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   position: fixed;
   top: 0;
   left: 0;
@@ -138,31 +185,11 @@ onMounted(() => {
   }
 }
 
-/* Vulnerability Section Styles */
-.vulnerability-section {
-  margin-bottom: 1rem;
-  padding: 1rem;
-  background: rgba(26, 35, 126, 0.4);
-  backdrop-filter: blur(10px);
-  border-radius: 8px;
-  border: 1px solid var(--bank-gold);
-}
-
-.vulnerability-section h3 {
-  color: var(--bank-gold);
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
 .toggle-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  margin-left: 1rem;
 }
 
 .toggle-item {
