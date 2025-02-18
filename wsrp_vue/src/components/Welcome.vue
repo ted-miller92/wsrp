@@ -17,7 +17,7 @@ defineProps({
 <style scoped>
 h1 {
   font-weight: 600;
-  font-size: 3.2rem;
+  font-size: 4.5rem;
   background: linear-gradient(
     135deg,
     var(--bank-gold-light) 0%,
@@ -31,7 +31,7 @@ h1 {
 }
 
 h3 {
-  font-size: 1.4rem;
+  font-size: 2rem;
   color: var(--bank-white);
   opacity: 0.9;
   font-weight: 400;

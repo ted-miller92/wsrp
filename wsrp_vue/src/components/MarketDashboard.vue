@@ -100,8 +100,8 @@ onUnmounted(() => {
 <style scoped>
 .market-dashboard {
   position: fixed;
-  left: 40px;
-  top: 138px; /* Adjust this value until it aligned with the first header */
+  right: 150px;
+  top: 138px;
   transform: none;
   width: 280px;
   background: rgba(26, 35, 126, 0.4);
