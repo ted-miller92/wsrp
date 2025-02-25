@@ -7,12 +7,7 @@ import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 const router = useRouter();
 const currentRoute = computed(() => router.path);
 const isLoggedIn = ref(false);
-const isCSRFEnabled = ref(false);
-const isXSSEnabled = ref(false);
-const isFileUploadVulnerable = ref(false);
-const isIDOREnabled = ref(false);
-
-// load the pinia store so we can access state variables
+const isDropdownOpen = ref(false);
 const vulnerabilityStore = useVulnerabilityStore();
 
 watch(
@@ -21,6 +16,7 @@ watch(
     updateLoggedIn();
   }
 );
+
 const updateLoggedIn = () => {
   isLoggedIn.value = !!localStorage.getItem("access_token");
 };
@@ -28,6 +24,10 @@ const updateLoggedIn = () => {
 onMounted(() => {
   updateLoggedIn();
 });
+
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
 </script>
 
 <template>
@@ -76,56 +76,59 @@ onMounted(() => {
 
       <LogoutButton v-if="isLoggedIn" />
     </div>
-    <div class="toggle-container">
-      <div class="toggle-item">
-        <label class="toggle">
-          <span class="toggle-label">
-            SQL Injection
-            {{ vulnerabilityStore.sqliVulnerable ? "Vulnerable" : "Secure" }}
-          </span>
-          <input type="checkbox" v-model="vulnerabilityStore.sqliVulnerable" />
-          <span class="slider secure"></span>
-        </label>
-      </div>
-      <div class="toggle-item">
-        <label class="toggle">
-          <span class="toggle-label">
-            CSRF
-            {{ vulnerabilityStore.csrfVulnerable ? "Vulnerable" : "Secure" }}
-          </span>
-          <input type="checkbox" v-model="vulnerabilityStore.csrfVulnerable" />
-          <span class="slider secure"></span>
-        </label>
-      </div>
-      <div class="toggle-item">
-        <label class="toggle">
-          <span class="toggle-label">
-            XSS
-            {{ vulnerabilityStore.xssVulnerable ? "Vulnerable" : "Secure" }}
-          </span>
-          <input type="checkbox" v-model="vulnerabilityStore.xssVulnerable" />
-          <span class="slider secure"></span>
-        </label>
-      </div>
-      <div class="toggle-item">
-        <label class="toggle">
-          <span class="toggle-label">
-            File Upload
-            {{ vulnerabilityStore.fileUploadVulnerable ? "Vulnerable" : "Secure" }}
-          </span>
-          <input type="checkbox" v-model="vulnerabilityStore.fileUploadVulnerable" />
-          <span class="slider secure"></span>
-        </label>
-      </div>
-      <div class="toggle-item">
-        <label class="toggle">
-          <span class="toggle-label">
-            IDOR
-            {{ vulnerabilityStore.idorVulnerable ? "Vulnerable" : "Secure" }}
-          </span>
-          <input type="checkbox" v-model="vulnerabilityStore.idorVulnerable" />
-          <span class="slider secure"></span>
-        </label>
+    <div class="dropdown">
+      <button @click="toggleDropdown" class="dropdown-button">Vulnerabilities</button>
+      <div v-if="isDropdownOpen" class="toggle-container">
+        <div class="toggle-item">
+          <label class="toggle">
+            <input type="checkbox" v-model="vulnerabilityStore.sqliVulnerable" />
+            <span class="slider secure"></span>
+            <span class="toggle-label">
+              SQL Injection
+              {{ vulnerabilityStore.sqliVulnerable ? "Vulnerable" : "Secure" }}
+            </span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <label class="toggle">
+            <input type="checkbox" v-model="vulnerabilityStore.csrfVulnerable" />
+            <span class="slider secure"></span>
+            <span class="toggle-label">
+              CSRF
+              {{ vulnerabilityStore.csrfVulnerable ? "Vulnerable" : "Secure" }}
+            </span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <label class="toggle">
+            <input type="checkbox" v-model="vulnerabilityStore.xssVulnerable" />
+            <span class="slider secure"></span>
+            <span class="toggle-label">
+              XSS
+              {{ vulnerabilityStore.xssVulnerable ? "Vulnerable" : "Secure" }}
+            </span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <label class="toggle">
+            <input type="checkbox" v-model="vulnerabilityStore.fileUploadVulnerable" />
+            <span class="slider secure"></span>
+            <span class="toggle-label">
+              File Upload
+              {{ vulnerabilityStore.fileUploadVulnerable ? "Vulnerable" : "Secure" }}
+            </span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <label class="toggle">
+            <input type="checkbox" v-model="vulnerabilityStore.idorVulnerable" />
+            <span class="slider secure"></span>
+            <span class="toggle-label">
+              IDOR
+              {{ vulnerabilityStore.idorVulnerable ? "Vulnerable" : "Secure" }}
+            </span>
+          </label>
+        </div>
       </div>
     </div>
   </nav>
@@ -149,10 +152,11 @@ onMounted(() => {
 
 .nav-links {
   display: flex;
-  justify-content: center;
+  margin-left:400px;
+  margin-right: auto;
+  justify-content: space-between;
   gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 60%;
 }
 
 .nav-link {
@@ -185,11 +189,43 @@ onMounted(() => {
   }
 }
 
+.dropdown {
+  width: 250px;
+  margin-right: 400px;
+}
+.dropdown:hover{
+  color: var(--bank-gold-light);
+  background: rgba(207, 181, 59, 0.1);
+}
+.dropdown-button {
+  background: none;
+  border: none;
+  color: var(--bank-white);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.dropdown-button:hover {
+  color: var(--bank-gold-light);
+}
+
 .toggle-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  width: 250px;
+  margin-right: 400px;
   gap: 1rem;
-  margin-left: 1rem;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(26, 35, 126, 0.9);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
 }
 
 .toggle-item {
@@ -204,7 +240,7 @@ onMounted(() => {
 }
 
 .toggle-label {
-  margin-right: 0.5rem;
+  margin-left: 0.5rem;
   color: var(--bank-white);
   font-size: 0.9rem;
 }
