@@ -14,8 +14,8 @@ When one of these toggles is set to "vulnerable" (indicated with red), the appli
 
 Visit any of the sections below to see if you can take advantage of these vulnerabilities
 
-[SQL Injection](sqli.md)
+[SQL Injection](vulnerabilities/sqli.md)
 
-[Cross-Site Scripting](xss.md)
+[Cross-Site Scripting](vulnerabilities/xss.md)
 
-[Cross-Site Request Forgery](csrf.md)
+[Cross-Site Request Forgery](vulnerabilities/csrf.md)
