@@ -1,0 +1,16 @@
+name: WSRP
+title: Website Security Research Project
+remote_theme: zendesk/jekyll-theme-zendesk-garden@main
+plugins:
+- jekyll-remote-theme
+
+sidebar:
+- introduction
+- setup
+- exploration-guide
+- label: Vulnerabilities
+  children:
+  - sqli
+  - xss
+  - csrf
+  - brute-force
