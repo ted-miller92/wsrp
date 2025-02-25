@@ -4,7 +4,6 @@ remote_theme: zendesk/jekyll-theme-zendesk-garden@main
 plugins:
 - jekyll-remote-theme
 
-auto_page_title: true
 sidebar:
 - introduction
 - setup
