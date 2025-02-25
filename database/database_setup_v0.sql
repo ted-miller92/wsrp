@@ -7,6 +7,10 @@ USE `banking_db_v0`;
 CREATE USER IF NOT EXISTS 'server_user'@'localhost' IDENTIFIED BY 'server_password';
 GRANT ALL PRIVILEGES ON `banking_db_v0`.* TO 'server_user'@'localhost';
 
+
+-- adjusted for 2 new columns for hashed passwords (weak and strong)
+-- CRC32 hash (8 characters)
+-- bcrypt hash (60 characters)
 CREATE TABLE IF NOT EXISTS `users` (
     `user_id` INT AUTO_INCREMENT PRIMARY KEY,
     `user_type` ENUM('CUSTOMER', 'EMPLOYEE') NOT NULL,
@@ -14,7 +18,8 @@ CREATE TABLE IF NOT EXISTS `users` (
     `first_name` VARCHAR(50) NOT NULL,
     `last_name` VARCHAR(50) NOT NULL,
     `email` VARCHAR(100) NOT NULL UNIQUE,
-    `password` VARCHAR(255)
+    `weak_password` CHAR(8),
+    `strong_password` CHAR(60)
 );
 
 CREATE TABLE IF NOT EXISTS `accounts` (
@@ -44,14 +49,22 @@ CREATE TABLE IF NOT EXISTS `transactions` (
     FOREIGN KEY (`account_id`) REFERENCES `accounts`(`account_id`)
 );
 
--- Insert sample data
-INSERT INTO `users` (`user_type`, `user_name`, `first_name`, `last_name`, `email`, `password`) VALUES 
-    ('EMPLOYEE', 'rwilson', 'Robert', 'Wilson', 'robert.wilson@bank.com', 'password123'),
-    ('EMPLOYEE', 'lchen', 'Lisa', 'Chen', 'lisa.chen@bank.com', 'password456'),
-    ('EMPLOYEE', 'dthomas', 'David', 'Thomas', 'david.thomas@bank.com', 'ezpass'),
-    ('CUSTOMER', 'jsmith', 'John', 'Smith', 'john.smith@gmail.com', 'easierpass'),
-    ('CUSTOMER', 'sjohnson', 'Sarah', 'Johnson', 'sarah.johnson@hotmail.com', 'securepass'),
-    ('CUSTOMER', 'mbrown', 'Michael', 'Brown', 'michael.brown@yahoo.com', 'superpass');
+-- Adjusted for new password hashing
+INSERT INTO `users` 
+(`user_type`, `user_name`, `first_name`, `last_name`, `email`, `weak_password`, `strong_password`) 
+VALUES
+('EMPLOYEE', 'rwilson', 'Robert', 'Wilson', 'robert.wilson@bank.com', 
+ '7d79033c', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewF3LQMUZHFPCCui'),
+('EMPLOYEE', 'lchen', 'Lisa', 'Chen', 'lisa.chen@bank.com', 
+ '89a69b6f', '$2b$12$FdTLGHM9TpxqQqwvkJHiU.6GRjpxh7GZxwqKV/D8sM6pYVHHAjmOq'),
+('EMPLOYEE', 'dthomas', 'David', 'Thomas', 'david.thomas@bank.com', 
+ '11a81e67', '$2b$12$QG3wXNH8f4gZCVvz8wGU4.Sx6Yx4TzDYLGz3HyWh1jFA/NK3Kk3sq'),
+('CUSTOMER', 'jsmith', 'John', 'Smith', 'john.smith@gmail.com', 
+ '98b4f4b2', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewF3LQMUZHFPCCui'),
+('CUSTOMER', 'sjohnson', 'Sarah', 'Johnson', 'sarah.johnson@hotmail.com', 
+ '734f98e1', '$2b$12$QG3wXNH8f4gZCVvz8wGU4.Sx6Yx4TzDYLGz3HyWh1jFA/NK3Kk3sq'),
+('CUSTOMER', 'mbrown', 'Michael', 'Brown', 'michael.brown@yahoo.com', 
+ '45aa23e9', '$2b$12$FdTLGHM9TpxqQqwvkJHiU.6GRjpxh7GZxwqKV/D8sM6pYVHHAjmOq');
 
 
 INSERT INTO `accounts` (`account_number`, `account_type`, `account_balance`, `account_interest_rate`) VALUES 
