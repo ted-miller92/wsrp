@@ -21,8 +21,8 @@ The initial assignment was to develop a web application, iteratively implementin
 
 ## Getting Started
 
-At this point, the application requires to be run in a virtual environment. See the [Setup Guide](setup.md) for full instructions. 
+At this point, the application requires to be run in a virtual environment. See the [Setup Guide](documentation/setup.md) for full instructions. 
 
 After setting up, the application should be accessible at http://localhost:5173/ and the API should be accessible at http://localhost:5000/. 
 
-Go to the [Exploration Guide](exploration_guide.md) to learn how to use (and hack) the application. 
+Go to the [Exploration Guide](documentation/exploration_guide.md) to learn how to use (and hack) the application. 
