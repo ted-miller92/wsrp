@@ -1,3 +1,7 @@
+---
+id: setup
+---
+
 # Setup Instructions
 
 - [Setup Instructions](#setup-instructions)

@@ -1,3 +1,7 @@
+---
+id: csrf
+---
+
 ## Cross-Site Request Forgery (CSRF)
 
 A few things have to be true for CSRF to be possible:
