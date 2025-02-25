@@ -54,17 +54,17 @@ INSERT INTO `users`
 (`user_type`, `user_name`, `first_name`, `last_name`, `email`, `weak_password`, `strong_password`) 
 VALUES
 ('EMPLOYEE', 'rwilson', 'Robert', 'Wilson', 'robert.wilson@bank.com', 
- '7d79033c', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewF3LQMUZHFPCCui'),
+ 'd043df23', '$2b$12$md9Mu6io0CQeuEnD8j/6qeQjKIMXB6bQIUwrqWcmOi8j1GC6LO0UG'),
 ('EMPLOYEE', 'lchen', 'Lisa', 'Chen', 'lisa.chen@bank.com', 
- '89a69b6f', '$2b$12$FdTLGHM9TpxqQqwvkJHiU.6GRjpxh7GZxwqKV/D8sM6pYVHHAjmOq'),
+ 'e9a37f80', '$2b$12$KAiCut8jOAr5IEnsSZHvoe/mLQbOEqNGcToWD10OF7.7p8xgoaqTC'),
 ('EMPLOYEE', 'dthomas', 'David', 'Thomas', 'david.thomas@bank.com', 
- '11a81e67', '$2b$12$QG3wXNH8f4gZCVvz8wGU4.Sx6Yx4TzDYLGz3HyWh1jFA/NK3Kk3sq'),
+ 'b5adcc1c', '$2b$12$TMSprexFIFaGHRSebB9I7ukRJNa6GDq391I3mGRn3z0z2h5wYit3e'),
 ('CUSTOMER', 'jsmith', 'John', 'Smith', 'john.smith@gmail.com', 
- '98b4f4b2', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewF3LQMUZHFPCCui'),
+ '97b28b9e', '$2b$12$KZaN.gcA9/4a2vUJ.knVJONfA6E4SVERkto.umLpPdc6JzcUt3zsS'),
 ('CUSTOMER', 'sjohnson', 'Sarah', 'Johnson', 'sarah.johnson@hotmail.com', 
- '734f98e1', '$2b$12$QG3wXNH8f4gZCVvz8wGU4.Sx6Yx4TzDYLGz3HyWh1jFA/NK3Kk3sq'),
+ 'f038951d', '$2b$12$hb6kqzZsALNq163C4eS/3uXr.4IZo1tULI3Wx3E.FczaFQkSaBj7q'),
 ('CUSTOMER', 'mbrown', 'Michael', 'Brown', 'michael.brown@yahoo.com', 
- '45aa23e9', '$2b$12$FdTLGHM9TpxqQqwvkJHiU.6GRjpxh7GZxwqKV/D8sM6pYVHHAjmOq');
+ '13e0821f', '2b$12$g9WKIgwiwQgIiue.fg9iru6Fbhcvy03SLUJYOblnOgugAeqgXIU1O');
 
 
 INSERT INTO `accounts` (`account_number`, `account_type`, `account_balance`, `account_interest_rate`) VALUES 
@@ -100,3 +100,51 @@ INSERT INTO `transactions` (`account_id`, `transaction_type`, `transaction_amoun
 -- FROM users u
 -- JOIN user_accounts ua ON u.user_id = ua.user_id
 -- JOIN accounts a ON ua.account_id = a.account_id;
+
+/* # Test Credentials for Banking App
+**IMPORTANT: These credentials are for testing purposes only**
+
+## Employee Accounts
+
+1. Robert Wilson
+   - Username: rwilson
+   - Email: robert.wilson@bank.com
+   - Password: password123
+   - Role: EMPLOYEE
+
+2. Lisa Chen
+   - Username: lchen
+   - Email: lisa.chen@bank.com
+   - Password: password456
+   - Role: EMPLOYEE
+
+3. David Thomas
+   - Username: dthomas
+   - Email: david.thomas@bank.com
+   - Password: ezpass
+   - Role: EMPLOYEE
+
+## Customer Accounts
+
+1. John Smith
+   - Username: jsmith
+   - Email: john.smith@gmail.com
+   - Password: easierpass
+   - Role: CUSTOMER
+
+2. Sarah Johnson
+   - Username: sjohnson
+   - Email: sarah.johnson@hotmail.com
+   - Password: securepass
+   - Role: CUSTOMER
+
+3. Michael Brown
+   - Username: mbrown
+   - Email: michael.brown@yahoo.com
+   - Password: superpass
+   - Role: CUSTOMER
+
+## Hash Information
+For reference, passwords are stored using:
+- Weak hash: CRC32
+- Strong hash: bcrypt (cost factor 12) */

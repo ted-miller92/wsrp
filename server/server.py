@@ -9,7 +9,7 @@ from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
 from flask_wtf.csrf import CSRFProtect # added for GLobal CSRF protection, add "@csrf.exempt" to CSRF insecure endpoints 
 
-# Import necessary modules for the brute-force endpoints
+# Import necessary modules for the brute-force endpoints and hashing
 from flask_limiter import Limiter  # Limiter for rate-limiting requests to prevent abuse (e.g., brute-force attacks)
 from flask_limiter.util import get_remote_address  # get_remote_address to get the client IP address for rate-limiting
 import bcrypt  # bcrypt for securely hashing passwords
@@ -17,6 +17,38 @@ from time import sleep  # sleep to introduce delays (e.g., for brute-force attac
 import random  # random for generating random data (e.g., for generating random strings or delays)
 import mysql.connector
 import bcrypt
+from zlib import crc32
+from flask import jsonify, request
+
+# Added for hashing passwords
+
+def calculate_crc32(password):
+    """Calculate CRC32 hash of password"""
+    return format(crc32(password.encode('utf-8')) & 0xFFFFFFFF, '08x')
+
+def calculate_bcrypt(password):
+    """Calculate bcrypt hash of password"""
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
+
+users = {
+    "rwilson": "securepass1",
+    "lchen": "securepass2",
+    "dthomas": "securepass3",
+    "jsmith": "easierpass",
+    "sjohnson": "mypassword",
+    "mbrown": "letmein123"
+}
+
+# Generate new hashes
+for user, password in users.items():
+    # Generate bcrypt hash
+    bcrypt_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    # Generate CRC32 hash
+    crc32_hash = format(crc32(password.encode('utf-8')) & 0xFFFFFFFF, '08x')
+
+    print(f"('{user}', '{password}', '{crc32_hash}', '{bcrypt_hash}'),")
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -75,64 +107,83 @@ failed_attempts = {}  # Dictionary to track failed login attempts per user
 # Define a route for user login
 # We will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added
 @app.route('/api/auth/login', methods=['POST'])
-@csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
-@limiter.limit("3 per minute")  # Apply rate limiting using the decorator
+@csrf.exempt
+@limiter.limit("3 per minute")  # Rate limiting for brute-force protection
 def login():
-    """
-    Handles user login by validating credentials.
-    Note: Uses insecure practices such as plain-text password storage and SQL 
-    injection vulnerability.
-    """
-    # Parse JSON data from the request body
+    """Handles user login securely with proper password hashing and authentication."""
     data = request.get_json()
     user_name = data.get("user_name")
     password = data.get("password")
 
-    # strip any unallowed characters
-    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
-    password = password.strip("';#$%&*()_+=@/\\|~`")
+    if not user_name or not password:
+        return jsonify({"error": "Missing username or password"}), 400
 
-    # Query to retrieve the user by username
-    query1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
+    # Secure query using parameterized SQL (prevents SQL injection)
+    query = text("SELECT user_id, user_name, user_type, weak_password, strong_password FROM users WHERE user_name = :user_name")
+    
     with db.engine.begin() as connection:
-        result = connection.execute(query1).fetchall()  # Fetch all matching rows
+        result = connection.execute(query, {"user_name": user_name}).fetchone()
 
-        # Check if the user exists
-        if len(result) == 0:
-            body = {"message": "User does not exist",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
+        if not result:
+            print(f"❌ DEBUG: User {user_name} does not exist!")
+            return jsonify({"message": "User does not exist", "status_code": 401}), 401
 
-        # Check if the user has exceeded failed attempts
-        if user_name in failed_attempts and failed_attempts[user_name] >= 3:
-            sleep(5)  # Introduce artificial delay
-            return jsonify({"error": "Too many failed attempts. Try again later."}), 403
+        # Retrieve stored password hashes
+        weak_password_hash = result.weak_password  # CRC32 hash (8 chars)
+        strong_password_hash = result.strong_password  # bcrypt hash (60 chars)
 
-        # Verify the password (insecure matching)
-        if result[0].password != password:
-            body = {"message": "Invalid Password",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
+        # **DEBUG PRINTS**
+        print(f"DEBUG: Attempting login for user: {user_name}")
+        print(f"DEBUG: Entered password: {password}")
+        print(f"DEBUG: Stored bcrypt hash: {strong_password_hash}")
+        print(f"DEBUG: Stored CRC32 hash: {weak_password_hash}")
 
-        # Create an access token
-        # Return user details (user_id and user_type) - also not secure
-        access_token = create_access_token(identity=result[0].user_name)
+        # First, check strong bcrypt hash if it exists
+        if strong_password_hash:
+            if bcrypt.checkpw(password.encode('utf-8'), strong_password_hash.encode('utf-8')):
+                print("✅ DEBUG: Bcrypt password match!")
+                access_token = create_access_token(identity=result.user_name)
+                response = jsonify({
+                    "message": "Login successful",
+                    "status_code": 200,
+                    "user_id": result.user_id,
+                    "user_type": result.user_type,
+                    "access_token": access_token,
+                    "security_level": "strong"
+                })
+                set_access_cookies(response, access_token)
+                return response
+            else:
+                print("❌ DEBUG: Bcrypt password does NOT match!")
 
-        response = jsonify({
-            "message": "Login successful",
-            "status_code": 200,
-            "user_id": result[0].user_id, 
-            "user_type": result[0].user_type,
-            "access_token": access_token
-            })
+        # If no strong password exists, fallback to CRC32 check
+        computed_crc32 = calculate_crc32(password)
+        print(f"DEBUG: Computed CRC32 hash: {computed_crc32}")
 
-        set_access_cookies(response, access_token)
+        if weak_password_hash:
+            if computed_crc32 == weak_password_hash:
+                print("✅ DEBUG: CRC32 password match!")
+                access_token = create_access_token(identity=result.user_name)
+                response = jsonify({
+                    "message": "Login successful",
+                    "status_code": 200,
+                    "user_id": result.user_id,
+                    "user_type": result.user_type,
+                    "access_token": access_token,
+                    "security_level": "weak"
+                })
+                set_access_cookies(response, access_token)
+                return response
+            else:
+                print("❌ DEBUG: CRC32 password does NOT match!")
 
-        # Note: In other iterations, it may be better to store the JWT in a cookie to
-        # protect from CSRF attacks
-        return response
+        print("❌ DEBUG: Password does NOT match any stored hash!")
+        return jsonify({"message": "Invalid Password", "status_code": 401}), 401
+
+
+
+
+# TESTINGGGGGGGG END
 
 # THIS IS THE SQL INJECTION VULNERABLE LOGIN ENDPOINT
 # we will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added 
