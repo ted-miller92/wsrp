@@ -6,7 +6,7 @@ sidebar:
 - introduction
 - setup
 - exploration-guide
-- label: vulnerabilities
+- label: Vulnerabilities
   children:
   - sqli
   - xss

@@ -1,3 +1,7 @@
+---
+id: brute-force
+---
+
 ## Brute Force
 
 ### 1. Insecure Login Endpoint (/insecure_login)

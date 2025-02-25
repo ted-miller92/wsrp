@@ -1,4 +1,6 @@
-# Website Security Research Project 
+---
+id: exploration-guide
+---
 
 ## Exploration Guide
 
