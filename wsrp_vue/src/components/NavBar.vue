@@ -91,9 +91,9 @@ onMounted(() => {
         <label class="toggle">
           <span class="toggle-label">
             CSRF
-            {{ isCSRFEnabled ? "Vulnerable" : "Secure" }}
+            {{ vulnerabilityStore.csrfVulnerable ? "Vulnerable" : "Secure" }}
           </span>
-          <input type="checkbox" v-model="isCSRFEnabled" />
+          <input type="checkbox" v-model="vulnerabilityStore.csrfVulnerable" />
           <span class="slider secure"></span>
         </label>
       </div>
@@ -101,9 +101,9 @@ onMounted(() => {
         <label class="toggle">
           <span class="toggle-label">
             XSS
-            {{ isXSSEnabled ? "Vulnerable" : "Secure" }}
+            {{ vulnerabilityStore.xssVulnerable ? "Vulnerable" : "Secure" }}
           </span>
-          <input type="checkbox" v-model="isXSSEnabled" />
+          <input type="checkbox" v-model="vulnerabilityStore.xssVulnerable" />
           <span class="slider secure"></span>
         </label>
       </div>
@@ -111,9 +111,9 @@ onMounted(() => {
         <label class="toggle">
           <span class="toggle-label">
             File Upload
-            {{ isFileUploadVulnerable ? "Vulnerable" : "Secure" }}
+            {{ vulnerabilityStore.fileUploadVulnerable ? "Vulnerable" : "Secure" }}
           </span>
-          <input type="checkbox" v-model="isFileUploadVulnerable" />
+          <input type="checkbox" v-model="vulnerabilityStore.fileUploadVulnerable" />
           <span class="slider secure"></span>
         </label>
       </div>
@@ -121,9 +121,9 @@ onMounted(() => {
         <label class="toggle">
           <span class="toggle-label">
             IDOR
-            {{ isIDOREnabled ? "Vulnerable" : "Secure" }}
+            {{ vulnerabilityStore.idorVulnerable ? "Vulnerable" : "Secure" }}
           </span>
-          <input type="checkbox" v-model="isIDOREnabled" />
+          <input type="checkbox" v-model="vulnerabilityStore.idorVulnerable" />
           <span class="slider secure"></span>
         </label>
       </div>
