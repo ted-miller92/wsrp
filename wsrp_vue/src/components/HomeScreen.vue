@@ -13,8 +13,9 @@ const navigateToLogin = () => {
 </script>
 
 <template>
+  <NavBar />
   <div class="wrapper">
-    <NavBar />
+
     <div class="page-container">
       <Welcome msg="Gold Standard Bank" />
 
