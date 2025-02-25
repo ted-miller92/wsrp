@@ -2,3 +2,13 @@ name: WSRP
 remote_theme: zendesk/jekyll-theme-zendesk-garden@main
 plugins:
 - jekyll-remote-theme
+sidebar:
+- introduction
+- setup
+- exploration-guide
+- label: vulnerabilities
+  children:
+  - sqli
+  - xss
+  - csrf
+  - brute-force
