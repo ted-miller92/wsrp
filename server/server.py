@@ -244,6 +244,74 @@ def register():
             "status_code": 200
         }
         return jsonify(body), 200
+    
+# Define route to create an account (used in new account button on dashboard)
+@app.route('/api/accounts/create', methods=['POST'])
+@csrf.exempt
+def create_account():
+    """
+    Creates a new account and associates it with a user if username is provided.
+    VULNERABILITY: This endpoint is intentionally vulnerable as it doesn't verify user permissions.
+    """
+    data = request.get_json()
+    account_type = data.get("account_type")
+    initial_balance = 0.0  # data.get("initial_balance", 0.00)
+    user_name = data.get("user_name")  # Optional - if present, associates account with user, if not it's admin
+    account_number = "1234-1234"  # f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}" TODO XXXX-XXXX
+    
+    try:
+        with db.engine.begin() as connection:
+            # Insert new account
+            query1 = text("""
+                INSERT INTO accounts (account_number, account_type, account_balance, account_interest_rate)
+                VALUES (:account_number, :account_type, :initial_balance, :interest_rate)
+            """)
+            
+            # Set interest rate based on account type
+            interest_rate = {
+                'CHECKING': 0.0005,
+                'SAVINGS': 0.0015,
+                'INVESTMENT': 0.0025
+            }.get(account_type, 0.0)
+            
+            result = connection.execute(query1, {
+                'account_number': account_number,
+                'account_type': account_type,
+                'initial_balance': initial_balance,
+                'interest_rate': interest_rate
+            })
+            
+            # Get the new account_id
+            query2 = text("SELECT LAST_INSERT_ID() as account_id")
+            account_id = connection.execute(query2).fetchone().account_id
+            
+            # If customer (username provided), link account to user through user_accounts
+            if user_name:
+                query3 = text("""
+                    INSERT INTO user_accounts (user_id, account_id)
+                    SELECT user_id, :account_id 
+                    FROM users 
+                    WHERE user_name = :user_name
+                """)
+                connection.execute(query3, {
+                    'account_id': account_id,
+                    'user_name': user_name
+                })
+
+        return jsonify({
+            "message": "Account created successfully",
+            "status_code": 200,
+            "account_id": account_id,
+            "account_number": account_number
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "message": "Error creating account",
+            "status_code": 500,
+            "error": str(e)
+        }), 500
+
 
 @app.route('/api/auth/logout', methods=['POST'])
 @jwt_required() 
