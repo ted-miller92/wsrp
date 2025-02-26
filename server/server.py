@@ -125,7 +125,7 @@ def login():
         result = connection.execute(query, {"user_name": user_name}).fetchone()
 
         if not result:
-            print(f"❌ DEBUG: User {user_name} does not exist!")
+            print(f"DEBUG: User {user_name} does not exist!")
             return jsonify({"message": "User does not exist", "status_code": 401}), 401
 
         # Retrieve stored password hashes
@@ -141,7 +141,7 @@ def login():
         # First, check strong bcrypt hash if it exists
         if strong_password_hash:
             if bcrypt.checkpw(password.encode('utf-8'), strong_password_hash.encode('utf-8')):
-                print("✅ DEBUG: Bcrypt password match!")
+                print("DEBUG: Bcrypt password match!")
                 access_token = create_access_token(identity=result.user_name)
                 response = jsonify({
                     "message": "Login successful",
@@ -154,7 +154,7 @@ def login():
                 set_access_cookies(response, access_token)
                 return response
             else:
-                print("❌ DEBUG: Bcrypt password does NOT match!")
+                print("DEBUG: Bcrypt password does NOT match!")
 
         # If no strong password exists, fallback to CRC32 check
         computed_crc32 = calculate_crc32(password)
@@ -162,7 +162,7 @@ def login():
 
         if weak_password_hash:
             if computed_crc32 == weak_password_hash:
-                print("✅ DEBUG: CRC32 password match!")
+                print("DEBUG: CRC32 password match!")
                 access_token = create_access_token(identity=result.user_name)
                 response = jsonify({
                     "message": "Login successful",
@@ -175,15 +175,13 @@ def login():
                 set_access_cookies(response, access_token)
                 return response
             else:
-                print("❌ DEBUG: CRC32 password does NOT match!")
+                print("DEBUG: CRC32 password does NOT match!")
 
-        print("❌ DEBUG: Password does NOT match any stored hash!")
+        print("DEBUG: Password does NOT match any stored hash!")
         return jsonify({"message": "Invalid Password", "status_code": 401}), 401
 
 
 
-
-# TESTINGGGGGGGG END
 
 # THIS IS THE SQL INJECTION VULNERABLE LOGIN ENDPOINT
 # we will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added 
