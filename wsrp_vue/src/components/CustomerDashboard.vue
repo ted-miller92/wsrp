@@ -82,7 +82,7 @@ const fetchAccounts = async (user_id) => {
 // acoalson
 const handleNewAccount = () => {
   router.push({ 
-    path: '/dashboard/new-account',
+    path: '/new-account',
     query: { 
       user_name: props.userProfile.user.user_name,
       user_id: props.userProfile.user.user_id

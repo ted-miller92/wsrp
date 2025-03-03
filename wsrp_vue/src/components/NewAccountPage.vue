@@ -1,6 +1,16 @@
 <script setup>
+import Welcome from "./Welcome.vue";
 import NewAccountForm from "./NewAccountForm.vue";
 import NavBar from "./NavBar.vue";
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+const userProfile = {
+  user: {
+    user_name: route.query.user_name,
+    user_id: route.query.user_id
+  }
+};
 </script>
 
 <template>
@@ -12,7 +22,7 @@ import NavBar from "./NavBar.vue";
   </header>
 
   <main class="account-container">
-    <NewAccountForm />
+    <NewAccountForm :userProfile="userProfile" />
   </main>
 </template>
 
