@@ -9,7 +9,6 @@ GRANT ALL PRIVILEGES ON `banking_db_v0`.* TO 'server_user'@'localhost';
 
 
 -- adjusted for 2 new columns for hashed passwords (weak and strong)
--- CRC32 hash (8 characters)
 -- bcrypt hash (60 characters)
 CREATE TABLE IF NOT EXISTS `users` (
     `user_id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -18,9 +17,10 @@ CREATE TABLE IF NOT EXISTS `users` (
     `first_name` VARCHAR(50) NOT NULL,
     `last_name` VARCHAR(50) NOT NULL,
     `email` VARCHAR(100) NOT NULL UNIQUE,
-    `weak_password` CHAR(8),
-    `strong_password` CHAR(60)
+    `password_plaintext` VARCHAR(255) NOT NULL,
+    `strong_password` CHAR(60)  
 );
+
 
 CREATE TABLE IF NOT EXISTS `accounts` (
     `account_id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -51,20 +51,21 @@ CREATE TABLE IF NOT EXISTS `transactions` (
 
 -- Adjusted for new password hashing
 INSERT INTO `users` 
-(`user_type`, `user_name`, `first_name`, `last_name`, `email`, `weak_password`, `strong_password`) 
+(`user_type`, `user_name`, `first_name`, `last_name`, `email`, `password_plaintext`, `strong_password`) 
 VALUES
 ('EMPLOYEE', 'rwilson', 'Robert', 'Wilson', 'robert.wilson@bank.com', 
- 'd043df23', '$2b$12$md9Mu6io0CQeuEnD8j/6qeQjKIMXB6bQIUwrqWcmOi8j1GC6LO0UG'),
+ 'password123', '$2b$12$w6m7.5.FKmStyYN6i7Zjk.WlLNpOcLDHnrSvcaF4d7c.8ms66qn0W'),
 ('EMPLOYEE', 'lchen', 'Lisa', 'Chen', 'lisa.chen@bank.com', 
- 'e9a37f80', '$2b$12$KAiCut8jOAr5IEnsSZHvoe/mLQbOEqNGcToWD10OF7.7p8xgoaqTC'),
+ 'password456', '$2b$12$6QrhtpP/w6tnwLszwhYXmeORcIAI2WX5hL.FV0JAtsqUlmtL1BHDe'),
 ('EMPLOYEE', 'dthomas', 'David', 'Thomas', 'david.thomas@bank.com', 
- 'b5adcc1c', '$2b$12$TMSprexFIFaGHRSebB9I7ukRJNa6GDq391I3mGRn3z0z2h5wYit3e'),
+ 'ezpass', '$2b$12$Zh/MCbAWW3cUTcCS7InjP..HkQ.7a2GWika1Yt0yq31lyx52g3yh2'),
 ('CUSTOMER', 'jsmith', 'John', 'Smith', 'john.smith@gmail.com', 
- '97b28b9e', '$2b$12$KZaN.gcA9/4a2vUJ.knVJONfA6E4SVERkto.umLpPdc6JzcUt3zsS'),
+ 'easierpass', '$2b$12$oYitaZ0dfLV254RNJZYBtOjTquXyToDw200El2tSNThpCkTgW0t62'),
 ('CUSTOMER', 'sjohnson', 'Sarah', 'Johnson', 'sarah.johnson@hotmail.com', 
- 'f038951d', '$2b$12$hb6kqzZsALNq163C4eS/3uXr.4IZo1tULI3Wx3E.FczaFQkSaBj7q'),
+ 'securepass', '$2b$12$NUFS54U1elwY80sffI3t6uNOBw3C45JKdA37TF9HY.pCMhuI79rKm'),
 ('CUSTOMER', 'mbrown', 'Michael', 'Brown', 'michael.brown@yahoo.com', 
- '13e0821f', '2b$12$g9WKIgwiwQgIiue.fg9iru6Fbhcvy03SLUJYOblnOgugAeqgXIU1O');
+ 'superpass', '$2b$12$FACP1lqjimFY0TON1wyUj.V9e8T4fAybZLBjVSwMBtfM4i4KAovIG');
+
 
 
 INSERT INTO `accounts` (`account_number`, `account_type`, `account_balance`, `account_interest_rate`) VALUES 

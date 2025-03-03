@@ -13,42 +13,22 @@ from flask_wtf.csrf import CSRFProtect # added for GLobal CSRF protection, add "
 from flask_limiter import Limiter  # Limiter for rate-limiting requests to prevent abuse (e.g., brute-force attacks)
 from flask_limiter.util import get_remote_address  # get_remote_address to get the client IP address for rate-limiting
 import bcrypt  # bcrypt for securely hashing passwords
-from time import sleep  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
+from time import sleep, time  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
 import random  # random for generating random data (e.g., for generating random strings or delays)
 import mysql.connector
 import bcrypt
-from zlib import crc32
 from flask import jsonify, request
 
 # Added for hashing passwords
+# Ensure that when you verify passwords during login, you use bcrypt.checkpw(),
+# because bcrypt hashes will always be different but can still verify the same password.
 
-def calculate_crc32(password):
-    """Calculate CRC32 hash of password"""
-    return format(crc32(password.encode('utf-8')) & 0xFFFFFFFF, '08x')
 
 def calculate_bcrypt(password):
     """Calculate bcrypt hash of password"""
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
-
-users = {
-    "rwilson": "securepass1",
-    "lchen": "securepass2",
-    "dthomas": "securepass3",
-    "jsmith": "easierpass",
-    "sjohnson": "mypassword",
-    "mbrown": "letmein123"
-}
-
-# Generate new hashes
-for user, password in users.items():
-    # Generate bcrypt hash
-    bcrypt_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-    # Generate CRC32 hash
-    crc32_hash = format(crc32(password.encode('utf-8')) & 0xFFFFFFFF, '08x')
-
-    print(f"('{user}', '{password}', '{crc32_hash}', '{bcrypt_hash}'),")
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -101,84 +81,70 @@ limiter = Limiter(
     app=app
 )
 
-# Secure login with brute-force protection. Rate-Limiting, tracking failed attempts per IP implemented
 failed_attempts = {}  # Dictionary to track failed login attempts per user
        
-# Define a route for user login
-# We will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added
+# Updated route for user login with combined both login routes into one. Added functionalities 
+# of rate limiting, brute-force protection and bcrypt password verification
 @app.route('/api/auth/login', methods=['POST'])
 @csrf.exempt
-@limiter.limit("3 per minute")  # Rate limiting for brute-force protection
+@limiter.limit("3 per minute")  # Rate limiting to prevent brute-force attacks
 def login():
-    """Handles user login securely with proper password hashing and authentication."""
+    """Handles user login securely with brute-force protection and JWT authentication."""
     data = request.get_json()
-    user_name = data.get("user_name")
+    user_name = data.get("user_name")  # Standardizing the name from "username"
     password = data.get("password")
 
     if not user_name or not password:
         return jsonify({"error": "Missing username or password"}), 400
 
     # Secure query using parameterized SQL (prevents SQL injection)
-    query = text("SELECT user_id, user_name, user_type, weak_password, strong_password FROM users WHERE user_name = :user_name")
+    query = text("SELECT user_id, user_name, user_type, strong_password FROM users WHERE user_name = :user_name")
     
     with db.engine.begin() as connection:
         result = connection.execute(query, {"user_name": user_name}).fetchone()
 
-        if not result:
-            print(f"DEBUG: User {user_name} does not exist!")
-            return jsonify({"message": "User does not exist", "status_code": 401}), 401
+    if not result:
+        print(f"DEBUG: User {user_name} does not exist!")
+        return jsonify({"message": "User does not exist", "status_code": 401}), 401
 
-        # Retrieve stored password hashes
-        weak_password_hash = result.weak_password  # CRC32 hash (8 chars)
-        strong_password_hash = result.strong_password  # bcrypt hash (60 chars)
+    strong_password_hash = result.strong_password  # bcrypt hash stored in DB
 
-        # **DEBUG PRINTS**
-        print(f"DEBUG: Attempting login for user: {user_name}")
-        print(f"DEBUG: Entered password: {password}")
-        print(f"DEBUG: Stored bcrypt hash: {strong_password_hash}")
-        print(f"DEBUG: Stored CRC32 hash: {weak_password_hash}")
+    # **Brute-force protection**
+    if user_name in failed_attempts and failed_attempts[user_name] >= 3:
+        time.sleep(5)  # Introduce artificial delay to slow down attackers
+        return jsonify({"error": "Too many failed attempts. Try again later."}), 403
 
-        # First, check strong bcrypt hash if it exists
-        if strong_password_hash:
-            if bcrypt.checkpw(password.encode('utf-8'), strong_password_hash.encode('utf-8')):
-                print("DEBUG: Bcrypt password match!")
-                access_token = create_access_token(identity=result.user_name)
-                response = jsonify({
-                    "message": "Login successful",
-                    "status_code": 200,
-                    "user_id": result.user_id,
-                    "user_type": result.user_type,
-                    "access_token": access_token,
-                    "security_level": "strong"
-                })
-                set_access_cookies(response, access_token)
-                return response
-            else:
-                print("DEBUG: Bcrypt password does NOT match!")
+    # **Password Verification**
+    if bcrypt.checkpw(password.encode('utf-8'), strong_password_hash.encode('utf-8')):
+        print("DEBUG: Bcrypt password match!")
 
-        # If no strong password exists, fallback to CRC32 check
-        computed_crc32 = calculate_crc32(password)
-        print(f"DEBUG: Computed CRC32 hash: {computed_crc32}")
+        # Reset failed attempts on successful login
+        failed_attempts[user_name] = 0
 
-        if weak_password_hash:
-            if computed_crc32 == weak_password_hash:
-                print("DEBUG: CRC32 password match!")
-                access_token = create_access_token(identity=result.user_name)
-                response = jsonify({
-                    "message": "Login successful",
-                    "status_code": 200,
-                    "user_id": result.user_id,
-                    "user_type": result.user_type,
-                    "access_token": access_token,
-                    "security_level": "weak"
-                })
-                set_access_cookies(response, access_token)
-                return response
-            else:
-                print("DEBUG: CRC32 password does NOT match!")
+        # Generate JWT access token
+        access_token = create_access_token(identity=result.user_name)
 
-        print("DEBUG: Password does NOT match any stored hash!")
+        response = jsonify({
+            "message": "Login successful",
+            "status_code": 200,
+            "user_id": result.user_id,
+            "user_type": result.user_type,
+            "access_token": access_token,
+            "security_level": "strong"
+        })
+
+        set_access_cookies(response, access_token)  # Set authentication cookies
+        return response
+
+    else:
+        print("DEBUG: Bcrypt password does NOT match!")
+
+        # Increment failed login attempts and introduce random delay
+        failed_attempts[user_name] = failed_attempts.get(user_name, 0) + 1
+        time.sleep(random.uniform(1, 3))  # Random delay to prevent timing attacks
+
         return jsonify({"message": "Invalid Password", "status_code": 401}), 401
+
 
 
 
@@ -554,39 +520,6 @@ def login_brute_force_vuln():
         # protect from CSRF attacks
         return response
 
-@app.route("/secure_login", methods=["POST"])
-@csrf.exempt
-@limiter.limit("3 per minute")  # Apply rate limiting using the decorator
-def secure_login():
-    """Secure login endpoint with brute-force protection."""
-    # global failed_attempts
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
-
-    # Fetch the stored password hash from the database
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT password FROM users WHERE user_name = %s", (username,))
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
-    if not user:
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    # Check if the user has exceeded failed attempts
-    if username in failed_attempts and failed_attempts[username] >= 3:
-        sleep(5)  # Introduce artificial delay
-        return jsonify({"error": "Too many failed attempts. Try again later."}), 403
-
-    if bcrypt.checkpw(password.encode("utf-8"), user['password'].encode('utf-8')):
-        failed_attempts[username] = 0  # Reset failed attempts on success
-        return jsonify({"message": "Login successful!"}), 200
-    else:
-        failed_attempts[username] = failed_attempts.get(username, 0) + 1
-        sleep(random.uniform(1, 3))  # Introduce random delay to prevent timing attacks
-        return jsonify({"error": "Invalid credentials"}), 401
 
 # Reset failed attempts route
 @app.route("/api/auth/reset_failed_attempts", methods=["POST"])
