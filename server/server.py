@@ -14,7 +14,7 @@ from flask_wtf.csrf import CSRFProtect # added for GLobal CSRF protection, add "
 from flask_limiter import Limiter  # Limiter for rate-limiting requests to prevent abuse (e.g., brute-force attacks)
 from flask_limiter.util import get_remote_address  # get_remote_address to get the client IP address for rate-limiting
 import bcrypt  # bcrypt for securely hashing passwords
-from time import sleep, time  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
+import time  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
 import random  # random for generating random data (e.g., for generating random strings or delays)
 import mysql.connector
 import bcrypt
@@ -110,7 +110,8 @@ def login():
 
     # strip any unallowed characters
     user_name = re.sub(r"[';#$%&*()_+=@/\\|~]", "", user_name)
-    password = re.sub(r"[';#$%&*()_+=@/\\|~]", "", password)
+    # We shouldn't strip special characters from passwords 
+    # password = re.sub(r"[';#$%&*()_+=@/\\|~]", "", password)
 
     # Secure query using parameterized SQL (prevents SQL injection)
     query = text("SELECT user_id, user_name, user_type, strong_password FROM users WHERE user_name = :user_name")
@@ -123,6 +124,10 @@ def login():
         return jsonify({"message": "User does not exist", "status_code": 401}), 401
 
     strong_password_hash = result.strong_password  # bcrypt hash stored in DB
+
+    # **Print Debugging Info**
+    print(f"DEBUG: Stored bcrypt hash from DB: {strong_password_hash}")
+    print(f"DEBUG: Entered password: {password}")
 
     # **Brute-force protection**
     if user_name in failed_attempts and failed_attempts[user_name] >= 3:
@@ -215,16 +220,16 @@ def login_sqli_vuln():
         # protect from CSRF attacks
         return response
 
-# Define a route to create a new user
+# Updated for hashing and security - Define a route to create a new user
 @app.route('/api/auth/register', methods=['POST'])
 @csrf.exempt
 def register():
     """
-    Handles user registration.
-    Note: Uses insecure practices such as plain-text password storage and SQL 
-    injection vulnerability.
+    Handles user registration securely.
+    Checks separately if the username and email already exist before inserting a new user.
+    Stores the plaintext password (for demonstration) and its bcrypt-hashed version.
     """
-    # Parse JSON data from the request body
+    # Parse JSON data from request
     data = request.get_json()
     user_name = data.get("user_name")
     password = data.get("password")
@@ -233,44 +238,52 @@ def register():
     email = data.get("email")
     user_type = data.get("user_type")
 
-    # strip any unallowed characters
-    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
-    password = password.strip("';#$%&*()_+=@/\\|~`")
-    first_name = first_name.strip("';#$%&*()_+=@/\\|~`")
-    last_name = last_name.strip("';#$%&*()_+=@/\\|~`")
-    email = email.strip("';#$%&*()_+=@/\\|~`")
+    if not user_name or not password or not first_name or not last_name or not email or not user_type:
+        return jsonify({"message": "Missing required fields", "status_code": 400}), 400
 
-    query_1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
+    # Strip special characters from non-password fields
+    user_name = re.sub(r"[;'#$%&*()_+=@/\\|~`]", "", user_name)
+    first_name = re.sub(r"[;'#$%&*()_+=@/\\|~`]", "", first_name)
+    last_name = re.sub(r"[;'#$%&*()_+=@/\\|~`]", "", last_name)
+    email = re.sub(r"[;'#$%&*()_+=@/\\|~`]", "", email)
+
+    # Don't strip the password! Some special characters are valid in passwords.
+
+    # **Check if the username already exists**
+    query_check_user = text("SELECT user_id FROM users WHERE user_name = :user_name")
     with db.engine.begin() as connection:
-        result = connection.execute(query_1).fetchall()  # Fetch all matching rows
+        existing_user = connection.execute(query_check_user, {"user_name": user_name}).fetchone()
+        if existing_user:
+            return jsonify({"message": "Username already taken", "status_code": 409}), 409
 
-        # Check if the user already exists
-        if len(result) > 0:
-            body = {"message": "User already exists",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
+    # **Check if the email already exists**
+    query_check_email = text("SELECT user_id FROM users WHERE email = :email")
+    with db.engine.begin() as connection:
+        existing_email = connection.execute(query_check_email, {"email": email}).fetchone()
+        if existing_email:
+            return jsonify({"message": "Email already registered", "status_code": 409}), 409
 
-        # Check if the email already exists
-        query_2 = text("SELECT * FROM users WHERE email = '" + email + "';")
-        result = connection.execute(query_2).fetchall()  # Fetch all matching rows
-        if len(result) > 0:
-            body = {"message": "Email already exists",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
+    # **Hash the password securely using bcrypt**
+    bcrypt_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-        # Insert the new user into the 'users' table
-        query_3 = text("INSERT INTO users \
-                       (user_name, password, first_name, last_name, email, user_type) \
-                       VALUES \
-                       ('" + user_name + "', '" + password + "', '" + first_name + "', '" + last_name + "', '" + email + "', '" + user_type + "');")
-        connection.execute(query_3)  # Execute the query
-        body = {
-            "message": "User created successfully",
-            "status_code": 200
-        }
-        return jsonify(body), 200
+    # **Insert user into database with plaintext and hashed password**
+    query_insert = text("""
+        INSERT INTO users (user_name, first_name, last_name, email, user_type, password_plaintext, strong_password)
+        VALUES (:user_name, :first_name, :last_name, :email, :user_type, :password_plaintext, :strong_password)
+    """)
+    with db.engine.begin() as connection:
+        connection.execute(query_insert, {
+            "user_name": user_name,
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "user_type": user_type,
+            "password_plaintext": password,  # Storing plaintext password for demonstration
+            "strong_password": bcrypt_hash   # Storing bcrypt-hashed password for security
+        })
+
+    return jsonify({"message": "User registered successfully", "status_code": 201}), 201
+
 
 @app.route('/api/auth/logout', methods=['POST'])
 @jwt_required() 
