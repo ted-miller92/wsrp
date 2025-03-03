@@ -1,8 +1,9 @@
 """Server code consists of an API to access the database"""
 
 # Import necessary libraries and modules
+import re
 from datetime import timedelta
-from flask import Flask, request, jsonify  # Flask for building the web app, request and jsonify for handling HTTP requests and responses
+from flask import Flask, request, jsonify, make_response # Flask for building the web app, request and jsonify for handling HTTP requests and responses
 from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
 from flask_cors import CORS  # CORS for handling cross-origin requests
@@ -62,6 +63,25 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tra
 # Initialize SQLAlchemy with the Flask app
 db = SQLAlchemy(app)
 
+# Initialize Global Flask-Limiter with the app. To apply it to an enpoint, add "@limiter.limit("3 per minute") below "@app.route"
+# Initialize Flask-Limiter with the app (no default limit for all routes)
+limiter = Limiter(
+    get_remote_address,  # Use the client's IP address for rate-limiting
+    app=app
+)
+
+# Configure Limiter to send JSON response instead of default Text/HTML
+# See https://flask-limiter.readthedocs.io/en/stable/recipes.html 
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    """Configure Limiter to send JSON response instead of default Text/HTML"""
+    return make_response(
+        jsonify(error=f"ratelimit exceeded {e.description}")
+        , 429
+)
+
+failed_attempts = {}  # Dictionary to track failed login attempts per user
+
 # Added root route 1-18
 @app.route('/')
 def home():
@@ -73,15 +93,6 @@ def home():
 def index():
     """Returns a confirmation that the API is running"""
     return "API is up and running"
-
-# Initialize Global Flask-Limiter with the app. To apply it to an enpoint, add "@limiter.limit("3 per minute") below "@app.route"
-# Initialize Flask-Limiter with the app (no default limit for all routes)
-limiter = Limiter(
-    get_remote_address,  # Use the client's IP address for rate-limiting
-    app=app
-)
-
-failed_attempts = {}  # Dictionary to track failed login attempts per user
        
 # Updated route for user login with combined both login routes into one. Added functionalities 
 # of rate limiting, brute-force protection and bcrypt password verification
@@ -95,7 +106,11 @@ def login():
     password = data.get("password")
 
     if not user_name or not password:
-        return jsonify({"error": "Missing username or password"}), 400
+        return jsonify({"message": "Username and password are required"}), 400
+
+    # strip any unallowed characters
+    user_name = re.sub(r"[';#$%&*()_+=@/\\|~]", "", user_name)
+    password = re.sub(r"[';#$%&*()_+=@/\\|~]", "", password)
 
     # Secure query using parameterized SQL (prevents SQL injection)
     query = text("SELECT user_id, user_name, user_type, strong_password FROM users WHERE user_name = :user_name")
@@ -144,9 +159,6 @@ def login():
         time.sleep(random.uniform(1, 3))  # Random delay to prevent timing attacks
 
         return jsonify({"message": "Invalid Password", "status_code": 401}), 401
-
-
-
 
 
 # THIS IS THE SQL INJECTION VULNERABLE LOGIN ENDPOINT
@@ -461,17 +473,6 @@ def secure_transfer():
     return jsonify({"message": "Secure transfer successful", "status_code": 200})
 
 # 2 New API Endpoints for Brute-force below 
-
-# suggest deleting this function as we already have a way to create a db connection
-# Database connection
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="server_user",
-        password="server_password",
-        database="banking_db_v0"
-    )
-
 # Insecure login for brute force
 @app.route('/api/brute_force_vuln/login', methods=['POST'])
 @csrf.exempt
