@@ -4,25 +4,29 @@ import Welcome from "./Welcome.vue";
 import LoginForm from "./LoginForm.vue";
 import SQLVulnerableForm from "./SQLVulnerableForm.vue";
 import CSRFVulnerableForm from "./CSRFVulnerableForm.vue";
+import XSSVulnerableForm from "./XSSVulnerableForm.vue";
 import NavBar from "./NavBar.vue";
 import { useRoute } from "vue-router";
+import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 
 const route = useRoute();
+const vulnerabilityStore = useVulnerabilityStore();
 const isVulnerable = route.query.endpoint === "/api/sqli_vuln/auth/login";
 const isCSRFEnabled = route.query.endpoint === "/api/csrf_vuln/transfer";
-
 </script>
 
 <template>
   <NavBar />
   <!-- <header> -->
-    <div class="wrapper">
-      <Welcome msg="Gold Standard Bank" />
-    </div>
+  <div class="wrapper">
+    <Welcome msg="Gold Standard Bank" />
+  </div>
   <!-- </header> -->
 
   <main class="login-container">
-    <LoginForm />
+    <XSSVulnerableForm v-if="vulnerabilityStore.getXssVulnerable()" />
+    <SQLVulnerableForm v-else-if="vulnerabilityStore.getSqliVulnerable()" />
+    <LoginForm v-else />
   </main>
 </template>
 

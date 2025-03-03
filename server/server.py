@@ -549,6 +549,53 @@ def reset_failed_attempts():
 
     return jsonify({"message": f"Failed attempts for {user_name} have been reset."}), 200
 
+# THIS IS THE XSS VULNERABLE LOGIN ENDPOINT
+@app.route('/api/xss_vuln/auth/login', methods=['POST'])
+@csrf.exempt
+def login_xss_vuln():
+    """
+    Handles user login with XSS vulnerability.
+    Note: Returns user input directly in the response without sanitization.
+    """
+    data = request.get_json()
+    user_name = data.get("user_name")
+    password = data.get("password")
+
+    # Query to retrieve the user by username
+    query = text("SELECT * FROM users WHERE user_name = :user_name")
+    with db.engine.begin() as connection:
+        result = connection.execute(query, {"user_name": user_name}).fetchone()
+
+    if not result:
+        return jsonify({
+            "message": "User does not exist",
+            "status_code": 401,
+            "user_input": user_name  # Vulnerable: returning user input directly
+        }), 401
+
+    # Verify the password
+    if not bcrypt.checkpw(password.encode('utf-8'), result.strong_password.encode('utf-8')):
+        return jsonify({
+            "message": "Invalid Password",
+            "status_code": 401,
+            "user_input": user_name  # Vulnerable: returning user input directly
+        }), 401
+
+    # Create an access token
+    access_token = create_access_token(identity=result.user_name)
+
+    response = jsonify({
+        "message": "Login successful",
+        "status_code": 200,
+        "user_id": result.user_id,
+        "user_type": result.user_type,
+        "access_token": access_token,
+        "user_input": user_name  # Vulnerable: returning user input directly
+    })
+
+    set_access_cookies(response, access_token)
+    return response
+
 # Run the application in debug mode (for development purposes)
 if __name__ == '__main__':
     app.run(debug=True)
