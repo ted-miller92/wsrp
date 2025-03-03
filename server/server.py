@@ -1,8 +1,9 @@
 """Server code consists of an API to access the database"""
 
 # Import necessary libraries and modules
+import re
 from datetime import timedelta
-from flask import Flask, request, jsonify  # Flask for building the web app, request and jsonify for handling HTTP requests and responses
+from flask import Flask, request, jsonify, make_response # Flask for building the web app, request and jsonify for handling HTTP requests and responses
 from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
 from flask_cors import CORS  # CORS for handling cross-origin requests
@@ -50,6 +51,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tra
 # Initialize SQLAlchemy with the Flask app
 db = SQLAlchemy(app)
 
+# Configure Limiter to send JSON response instead of default Text/HTML
+# See https://flask-limiter.readthedocs.io/en/stable/recipes.html 
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    """Configure Limiter to send JSON response instead of default Text/HTML"""
+    return make_response(
+        jsonify(error=f"ratelimit exceeded {e.description}")
+        , 429
+)
+
+
+
 # Added root route 1-18
 @app.route('/')
 def home():
@@ -88,9 +101,12 @@ def login():
     user_name = data.get("user_name")
     password = data.get("password")
 
+    if not user_name or not password:
+        return jsonify({"message": "Username and password are required"}), 400
+
     # strip any unallowed characters
-    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
-    password = password.strip("';#$%&*()_+=@/\\|~`")
+    user_name = re.sub(r"[';#$%&*()_+=@/\\|~]", "", user_name)
+    password = re.sub(r"[';#$%&*()_+=@/\\|~]", "", password)
 
     # Query to retrieve the user by username
     query1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")

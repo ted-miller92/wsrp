@@ -15,16 +15,14 @@ const isCSRFEnabled = route.query.endpoint === "/api/csrf_vuln/transfer";
 
 <template>
   <NavBar />
-  <header>
+  <!-- <header> -->
     <div class="wrapper">
       <Welcome msg="Gold Standard Bank" />
     </div>
-  </header>
+  <!-- </header> -->
 
   <main class="login-container">
-    <LoginForm v-if="!isVulnerable && !isCSRFEnabled" />
-    <SQLVulnerableForm v-else-if="isVulnerable" />
-    <CSRFVulnerableForm v-else-if="isCSRFEnabled" />
+    <LoginForm />
   </main>
 </template>
 

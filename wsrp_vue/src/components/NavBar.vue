@@ -28,6 +28,14 @@ onMounted(() => {
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
 };
+
+// close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dropdown')) {
+    isDropdownOpen.value = false;
+  }
+});
+
 </script>
 
 <template>
@@ -140,6 +148,7 @@ const toggleDropdown = () => {
   justify-content: space-between;
   align-items: center;
   position: fixed;
+  width: 100%;
   top: 0;
   left: 0;
   right: 0;
