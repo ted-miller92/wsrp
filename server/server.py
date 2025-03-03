@@ -10,14 +10,26 @@ from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
 from flask_wtf.csrf import CSRFProtect # added for GLobal CSRF protection, add "@csrf.exempt" to CSRF insecure endpoints 
 
-# Import necessary modules for the brute-force endpoints
+# Import necessary modules for the brute-force endpoints and hashing
 from flask_limiter import Limiter  # Limiter for rate-limiting requests to prevent abuse (e.g., brute-force attacks)
 from flask_limiter.util import get_remote_address  # get_remote_address to get the client IP address for rate-limiting
 import bcrypt  # bcrypt for securely hashing passwords
-from time import sleep  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
+from time import sleep, time  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
 import random  # random for generating random data (e.g., for generating random strings or delays)
 import mysql.connector
 import bcrypt
+from flask import jsonify, request
+
+# Added for hashing passwords
+# Ensure that when you verify passwords during login, you use bcrypt.checkpw(),
+# because bcrypt hashes will always be different but can still verify the same password.
+
+
+def calculate_bcrypt(password):
+    """Calculate bcrypt hash of password"""
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -51,6 +63,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tra
 # Initialize SQLAlchemy with the Flask app
 db = SQLAlchemy(app)
 
+# Initialize Global Flask-Limiter with the app. To apply it to an enpoint, add "@limiter.limit("3 per minute") below "@app.route"
+# Initialize Flask-Limiter with the app (no default limit for all routes)
+limiter = Limiter(
+    get_remote_address,  # Use the client's IP address for rate-limiting
+    app=app
+)
+
 # Configure Limiter to send JSON response instead of default Text/HTML
 # See https://flask-limiter.readthedocs.io/en/stable/recipes.html 
 @app.errorhandler(429)
@@ -61,7 +80,7 @@ def ratelimit_handler(e):
         , 429
 )
 
-
+failed_attempts = {}  # Dictionary to track failed login attempts per user
 
 # Added root route 1-18
 @app.route('/')
@@ -74,31 +93,16 @@ def home():
 def index():
     """Returns a confirmation that the API is running"""
     return "API is up and running"
-
-# Initialize Global Flask-Limiter with the app. To apply it to an enpoint, add "@limiter.limit("3 per minute") below "@app.route"
-# Initialize Flask-Limiter with the app (no default limit for all routes)
-limiter = Limiter(
-    get_remote_address,  # Use the client's IP address for rate-limiting
-    app=app
-)
-
-# Secure login with brute-force protection. Rate-Limiting, tracking failed attempts per IP implemented
-failed_attempts = {}  # Dictionary to track failed login attempts per user
        
-# Define a route for user login
-# We will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added
+# Updated route for user login with combined both login routes into one. Added functionalities 
+# of rate limiting, brute-force protection and bcrypt password verification
 @app.route('/api/auth/login', methods=['POST'])
-@csrf.exempt  # Flask-WTF automatically applies CSRF protection to forms unless exempted
-@limiter.limit("3 per minute")  # Apply rate limiting using the decorator
+@csrf.exempt
+@limiter.limit("3 per minute")  # Rate limiting to prevent brute-force attacks
 def login():
-    """
-    Handles user login by validating credentials.
-    Note: Uses insecure practices such as plain-text password storage and SQL 
-    injection vulnerability.
-    """
-    # Parse JSON data from the request body
+    """Handles user login securely with brute-force protection and JWT authentication."""
     data = request.get_json()
-    user_name = data.get("user_name")
+    user_name = data.get("user_name")  # Standardizing the name from "username"
     password = data.get("password")
 
     if not user_name or not password:
@@ -108,47 +112,54 @@ def login():
     user_name = re.sub(r"[';#$%&*()_+=@/\\|~]", "", user_name)
     password = re.sub(r"[';#$%&*()_+=@/\\|~]", "", password)
 
-    # Query to retrieve the user by username
-    query1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
+    # Secure query using parameterized SQL (prevents SQL injection)
+    query = text("SELECT user_id, user_name, user_type, strong_password FROM users WHERE user_name = :user_name")
+    
     with db.engine.begin() as connection:
-        result = connection.execute(query1).fetchall()  # Fetch all matching rows
+        result = connection.execute(query, {"user_name": user_name}).fetchone()
 
-        # Check if the user exists
-        if len(result) == 0:
-            body = {"message": "User does not exist",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
+    if not result:
+        print(f"DEBUG: User {user_name} does not exist!")
+        return jsonify({"message": "User does not exist", "status_code": 401}), 401
 
-        # Check if the user has exceeded failed attempts
-        if user_name in failed_attempts and failed_attempts[user_name] >= 3:
-            sleep(5)  # Introduce artificial delay
-            return jsonify({"error": "Too many failed attempts. Try again later."}), 403
+    strong_password_hash = result.strong_password  # bcrypt hash stored in DB
 
-        # Verify the password (insecure matching)
-        if result[0].password != password:
-            body = {"message": "Invalid Password",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
+    # **Brute-force protection**
+    if user_name in failed_attempts and failed_attempts[user_name] >= 3:
+        time.sleep(5)  # Introduce artificial delay to slow down attackers
+        return jsonify({"error": "Too many failed attempts. Try again later."}), 403
 
-        # Create an access token
-        # Return user details (user_id and user_type) - also not secure
-        access_token = create_access_token(identity=result[0].user_name)
+    # **Password Verification**
+    if bcrypt.checkpw(password.encode('utf-8'), strong_password_hash.encode('utf-8')):
+        print("DEBUG: Bcrypt password match!")
+
+        # Reset failed attempts on successful login
+        failed_attempts[user_name] = 0
+
+        # Generate JWT access token
+        access_token = create_access_token(identity=result.user_name)
 
         response = jsonify({
             "message": "Login successful",
             "status_code": 200,
-            "user_id": result[0].user_id, 
-            "user_type": result[0].user_type,
-            "access_token": access_token
-            })
+            "user_id": result.user_id,
+            "user_type": result.user_type,
+            "access_token": access_token,
+            "security_level": "strong"
+        })
 
-        set_access_cookies(response, access_token)
-
-        # Note: In other iterations, it may be better to store the JWT in a cookie to
-        # protect from CSRF attacks
+        set_access_cookies(response, access_token)  # Set authentication cookies
         return response
+
+    else:
+        print("DEBUG: Bcrypt password does NOT match!")
+
+        # Increment failed login attempts and introduce random delay
+        failed_attempts[user_name] = failed_attempts.get(user_name, 0) + 1
+        time.sleep(random.uniform(1, 3))  # Random delay to prevent timing attacks
+
+        return jsonify({"message": "Invalid Password", "status_code": 401}), 401
+
 
 # THIS IS THE SQL INJECTION VULNERABLE LOGIN ENDPOINT
 # we will treat this endpoint as insecure and CSRF vulnerable for now, as @csrf.exempt has been added 
@@ -462,17 +473,6 @@ def secure_transfer():
     return jsonify({"message": "Secure transfer successful", "status_code": 200})
 
 # 2 New API Endpoints for Brute-force below 
-
-# suggest deleting this function as we already have a way to create a db connection
-# Database connection
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="server_user",
-        password="server_password",
-        database="banking_db_v0"
-    )
-
 # Insecure login for brute force
 @app.route('/api/brute_force_vuln/login', methods=['POST'])
 @csrf.exempt
@@ -521,39 +521,6 @@ def login_brute_force_vuln():
         # protect from CSRF attacks
         return response
 
-@app.route("/secure_login", methods=["POST"])
-@csrf.exempt
-@limiter.limit("3 per minute")  # Apply rate limiting using the decorator
-def secure_login():
-    """Secure login endpoint with brute-force protection."""
-    # global failed_attempts
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
-
-    # Fetch the stored password hash from the database
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT password FROM users WHERE user_name = %s", (username,))
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
-    if not user:
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    # Check if the user has exceeded failed attempts
-    if username in failed_attempts and failed_attempts[username] >= 3:
-        sleep(5)  # Introduce artificial delay
-        return jsonify({"error": "Too many failed attempts. Try again later."}), 403
-
-    if bcrypt.checkpw(password.encode("utf-8"), user['password'].encode('utf-8')):
-        failed_attempts[username] = 0  # Reset failed attempts on success
-        return jsonify({"message": "Login successful!"}), 200
-    else:
-        failed_attempts[username] = failed_attempts.get(username, 0) + 1
-        sleep(random.uniform(1, 3))  # Introduce random delay to prevent timing attacks
-        return jsonify({"error": "Invalid credentials"}), 401
 
 # Reset failed attempts route
 @app.route("/api/auth/reset_failed_attempts", methods=["POST"])
