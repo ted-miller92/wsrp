@@ -5,6 +5,7 @@ import TransactionList from "./TransactionList.vue";
 import AccountsList from "./AccountsList.vue";
 import NavBar from "./NavBar.vue";
 import { useRouter } from 'vue-router';
+import NewAccountForm from './NewAccountForm.vue';
 
 const props = defineProps({
   userProfile: {
@@ -26,6 +27,9 @@ const transactions = ref(null); // Placeholder for the fetched transactions
 // Data will be loaded into object that includes the list of accounts, response message and response code
 const accountsLoading = ref(true); // Loading state for accounts
 const accounts = ref(null); // Placeholder for the fetched accounts
+
+// Control form's visibility
+const showNewAccountForm = ref(false);
 
 const router = useRouter();
 
