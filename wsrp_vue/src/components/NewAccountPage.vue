@@ -21,12 +21,14 @@ const handleBack = () => {
   <NavBar />
   <main class="account-container">
     <div class="form-header">
-      <button class="back-button" @click="handleBack">
-        Back
-      </button>
       <h2>Create New Account</h2>
     </div>
     <NewAccountForm :userProfile="userProfile" />
+    <div class="button-container">
+      <button class="back-button" @click="handleBack">
+        Back to Dashboard
+      </button>
+    </div>
   </main>
 </template>
 
@@ -38,32 +40,33 @@ const handleBack = () => {
 }
 
 .form-header {
-  display: flex;
-  align-items: center;
   margin-bottom: 2rem;
-  position: relative;
+  text-align: center;
+}
+
+.button-container {
+  margin-top: 2rem;
+  text-align: center;
 }
 
 .back-button {
-  position: absolute;
-  left: 0;
   background: none;
-  border: none;
+  border: 1px solid var(--bank-gold);
+  border-radius: 8px;
   color: var(--bank-gold);
   font-size: 1.1rem;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.75rem 1.5rem;
   transition: all 0.2s ease;
 }
 
 .back-button:hover {
+  background: rgba(207, 181, 59, 0.1);
   color: var(--bank-gold-light);
-  transform: translateX(-3px);
+  transform: translateY(-2px);
 }
 
 h2 {
-  flex: 1;
-  text-align: center;
   color: var(--bank-gold);
   margin: 0;
   font-size: 1.8rem;
