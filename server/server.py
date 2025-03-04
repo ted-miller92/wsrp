@@ -255,14 +255,30 @@ def create_account():
     """
     data = request.get_json()
     account_type = data.get("account_type")
+    user_name = data.get("user_name")  # Optional - if present, associates account with user
+    
+    # Get user_type if username is provided
+    user_type = None
+    if user_name:
+        query = text("SELECT user_type FROM users WHERE user_name = :user_name")
+        with db.engine.begin() as connection:
+            result = connection.execute(query, {'user_name': user_name}).fetchone()
+            if result:
+                user_type = result.user_type
+
     # Set initial_balance to 0 if customer
-    print(account_type)
-    if account_type == "CUSTOMER":
+    if user_type == "CUSTOMER":
         initial_balance = float(data.get("initial_balance", 0.00))
-        print(initial_balance)
     else:
         initial_balance = 0.00
-    user_name = data.get("user_name")  # Optional - if present, associates account with user, if not it's admin
+    # # Set initial_balance to 0 if customer
+    # print(account_type)
+    # if account_type == "CUSTOMER":
+    #     initial_balance = float(data.get("initial_balance", 0.00))
+    #     print(initial_balance)
+    # else:
+    #     initial_balance = 0.00
+    # user_name = data.get("user_name")  # Optional - if present, associates account with user, if not it's admin
     account_number = f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}" # TODO validate num doesn't exist
     
     try:
