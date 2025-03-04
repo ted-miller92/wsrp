@@ -255,7 +255,11 @@ def create_account():
     """
     data = request.get_json()
     account_type = data.get("account_type")
-    initial_balance = 0.0  # data.get("initial_balance", 0.00)
+    # Set initial_balance to 0 if customer
+    if account_type == "CUSTOMER":
+        initial_balance = float(data.get("initial_balance", 0.00))
+    else:
+        initial_balance = 0.00
     user_name = data.get("user_name")  # Optional - if present, associates account with user, if not it's admin
     account_number = f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}" # TODO validate num doesn't exist
     

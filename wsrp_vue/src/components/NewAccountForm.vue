@@ -71,7 +71,7 @@ async function createAccount(event) {
           type="number"
           id="initialBalance"
           min="0"
-          step="0.01"
+          step="1.00"
           required
         />
       </div>
