@@ -257,7 +257,7 @@ def create_account():
     account_type = data.get("account_type")
     initial_balance = 0.0  # data.get("initial_balance", 0.00)
     user_name = data.get("user_name")  # Optional - if present, associates account with user, if not it's admin
-    account_number = "1234-1234"  # f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}" TODO XXXX-XXXX
+    account_number = f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}" # TODO validate num doesn't exist
     
     try:
         with db.engine.begin() as connection:
