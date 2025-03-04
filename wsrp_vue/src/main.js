@@ -11,6 +11,7 @@ import UserProfile from "./components/UserProfile.vue";
 import HomeScreen from "./components/HomeScreen.vue";
 // import Dashboard from "./components/Dashboard.vue";
 import DashboardLayout from "./layouts/DashboardLayout.vue";
+import NewAccountPage from "./components/NewAccountPage.vue";
 import "./assets/main.css";
 
 const router = createRouter({
@@ -24,6 +25,7 @@ const router = createRouter({
     { path: "/customerDashboard", component: CustomerDashboard },
     { path: "/userProfile", component: UserProfile },
     { path: "/dashboard", component: DashboardLayout },
+    { path: "/new-account", component: NewAccountPage },
   ],
 });
 

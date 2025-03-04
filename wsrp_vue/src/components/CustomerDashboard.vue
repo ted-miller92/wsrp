@@ -4,6 +4,8 @@ import { jwtDecode } from "jwt-decode";
 import TransactionList from "./TransactionList.vue";
 import AccountsList from "./AccountsList.vue";
 import NavBar from "./NavBar.vue";
+import { useRouter } from 'vue-router';
+import NewAccountForm from './NewAccountForm.vue';
 
 const props = defineProps({
   userProfile: {
@@ -25,6 +27,11 @@ const transactions = ref(null); // Placeholder for the fetched transactions
 // Data will be loaded into object that includes the list of accounts, response message and response code
 const accountsLoading = ref(true); // Loading state for accounts
 const accounts = ref(null); // Placeholder for the fetched accounts
+
+// Control form's visibility
+const showNewAccountForm = ref(false);
+
+const router = useRouter();
 
 const options = {
   method: "GET",
@@ -72,9 +79,26 @@ const fetchAccounts = async (user_id) => {
   }
 };
 
+// acoalson
+const handleNewAccount = () => {
+  router.push({ 
+    path: '/new-account',
+    query: { 
+      user_name: props.userProfile.user.user_name,
+      user_id: props.userProfile.user.user_id
+    }
+  });
+};
+
+
 onMounted(async () => {
   await fetchTransactions(); // Fetch transactions
   await fetchAccounts(props.userProfile.user.user_id);
+  // acoalson
+  const newAccountButton = document.querySelector('.action-button[data-action="new-account"]');
+  if (newAccountButton) {
+    newAccountButton.addEventListener('click', handleNewAccount);
+  }
 });
 
 // Add new computed properties for summary data
@@ -160,7 +184,7 @@ const accountSummary = computed(() => {
           <button class="action-button">
             <i class="fas fa-paper-plane"></i> Pay Bills
           </button>
-          <button class="action-button">
+          <button class="action-button" data-action="new-account" @click="handleNewAccount">
             <i class="fas fa-plus"></i> New Account
           </button>
           <button class="action-button">
