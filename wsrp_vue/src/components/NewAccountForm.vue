@@ -49,7 +49,11 @@ async function createAccount(event) {
 
 <template>
   <div class="new-account-form">
-    <h2>Create New Account</h2>
+    <div class="user-info">
+      <p class="user-type">{{ props.userProfile.user.user_type }}</p>
+      <p class="user-name">{{ props.userProfile.user.first_name }} {{ props.userProfile.user.last_name }}</p>
+    </div>
+
     <form @submit="createAccount">
       <div class="form-group">
         <label for="accountType">Account Type</label>
@@ -81,13 +85,31 @@ async function createAccount(event) {
 
 <style scoped>
 .new-account-form {
-  max-width: 500px;
-  margin: 2rem auto;
-  padding: 2rem;
   background: rgba(26, 35, 126, 0.4);
   backdrop-filter: blur(10px);
   border: 1px solid var(--bank-gold);
   border-radius: 12px;
+  padding: 2rem;
+}
+
+.user-info {
+  margin-bottom: 2rem;
+  text-align: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(207, 181, 59, 0.2);
+}
+
+.user-type {
+  color: var(--bank-gold);
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.user-name {
+  color: var(--bank-white);
+  font-size: 1.3rem;
+  font-weight: 500;
 }
 
 h2 {

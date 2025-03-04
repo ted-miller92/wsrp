@@ -1,64 +1,69 @@
 <script setup>
-import Welcome from "./Welcome.vue";
 import NewAccountForm from "./NewAccountForm.vue";
 import NavBar from "./NavBar.vue";
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 const userProfile = {
   user: {
     user_name: route.query.user_name,
     user_id: route.query.user_id
   }
 };
+
+const handleBack = () => {
+  router.push('/dashboard');
+};
 </script>
 
 <template>
   <NavBar />
-  <header>
-    <div class="wrapper">
-      <Welcome msg="Gold Standard Bank" />
-    </div>
-  </header>
-
   <main class="account-container">
+    <div class="form-header">
+      <button class="back-button" @click="handleBack">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h2>Create New Account</h2>
+    </div>
     <NewAccountForm :userProfile="userProfile" />
   </main>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  margin-top: 60px; /* Added to accommodate navbar */
-  margin-bottom: 2rem;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-
-.register-container {
-  max-width: 600px;
-  margin: 0 auto;
+.account-container {
+  max-width: 500px;
+  margin: 80px auto 0;
   padding: 2rem;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  background: none;
+  border: none;
+  color: var(--bank-gold);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.back-button:hover {
+  transform: translateX(-3px);
+}
+
+h2 {
+  flex: 1;
+  text-align: center;
+  color: var(--bank-gold);
+  margin: 0;
 }
 </style>
