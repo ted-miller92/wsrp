@@ -1,3 +1,7 @@
+---
+id: sqli
+---
+
 ## SQL Injection
 
 '''General info about SQL injection here'''

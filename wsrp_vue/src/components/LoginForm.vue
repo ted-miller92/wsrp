@@ -6,6 +6,10 @@ import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 const router = useRouter();
 const user_name = ref("");
 const password = ref("");
+const responseContainerVisible = ref(false);
+const requestText = ref("");
+const responseText = ref("");
+const loginError = ref(false);
 
 // load the pinia store so we can access state variables
 const vulnerabilityStore = useVulnerabilityStore();
@@ -15,9 +19,15 @@ const endpoint = ref(
   router.currentRoute.value.query.endpoint || "/api/auth/login"
 );
 
+// close response container when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.response-container')) {
+    responseContainerVisible.value = false;
+  }
+});
+
 onMounted(() => {
   // log current vulnerability state
-  console.log("Current value for sqli vulnerable: " + vulnerabilityStore.getSqliVulnerable());
   
   const loginButton = document.getElementById("login");
 
@@ -42,6 +52,8 @@ onMounted(() => {
       }),
     };
 
+    requestText.value = options.body;;
+
     const response = await fetch(
       `http://127.0.0.1:5000${endpoint.value}`,
       options
@@ -56,6 +68,11 @@ onMounted(() => {
     } else {
       // Handle login error
       console.error("Login failed");
+      // show login error in the form
+      loginError.value = true;
+      const responseData = await response.json();
+      responseText.value = JSON.stringify(responseData);
+      responseContainerVisible.value = true;
     }
   };
 
@@ -71,7 +88,8 @@ onMounted(() => {
         <label for="username">Username</label>
         <input v-model="user_name" type="text" placeholder="Username" />
         <label for="password">Password</label>
-        <input v-model="password" type="password" placeholder="password" />
+        <input v-model="password" type="password" placeholder="Password" />
+        <p v-if="loginError" class="login-error">Login failed. Please try again.</p>
         <button id="login" type="submit">Login</button>
 
         <p>
@@ -80,6 +98,17 @@ onMounted(() => {
         </p>
       </form>
     </div>
+  </div>
+  <div v-if="responseContainerVisible" class="response-container">
+    <span class="response-container-header">
+      <h3>HTTP Request and Response info</h3>
+      <button id="close-response" @click="responseContainerVisible = false">Close</button>
+    </span>
+    <p>Here is what was sent to the server and what the server responded with.</p>
+    <h4>Request:</h4>
+    <pre>{{ requestText }}</pre>
+    <h4>Response:</h4>
+    <pre>{{ responseText }}</pre>
   </div>
 </template>
 
@@ -194,5 +223,55 @@ label {
     margin: 1rem;
     padding: 1.5rem;
   }
+}
+
+.response-container{
+  position: absolute;
+  z-index: 1000;
+  bottom: 10%;
+  left: 35%;
+  transform: translateX(-50%);
+  background-color: #000;
+  padding: 1rem;
+  padding-top: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 650px;
+  max-width: 800px;
+}
+.response-container-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+button#close-response{
+  top: 10px;
+  right: 10px;
+  background: linear-gradient( 135deg, var(--bank-gold) 0%, var(--bank-gold-dark) 100% );;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  width:fit-content;
+  transition: color 0.3s ease;
+}
+.response-container h3{
+  color: #fff;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+.response-container h4{
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+.response-container pre{
+  text-wrap: wrap;
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+
+
+.login-error{
+  color: red;
 }
 </style>
