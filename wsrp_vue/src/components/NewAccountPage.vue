@@ -22,7 +22,7 @@ const handleBack = () => {
   <main class="account-container">
     <div class="form-header">
       <button class="back-button" @click="handleBack">
-        <i class="fas fa-arrow-left"></i>
+        Back
       </button>
       <h2>Create New Account</h2>
     </div>
@@ -32,7 +32,7 @@ const handleBack = () => {
 
 <style scoped>
 .account-container {
-  max-width: 500px;
+  max-width: 800px;
   margin: 80px auto 0;
   padding: 2rem;
 }
@@ -50,13 +50,14 @@ const handleBack = () => {
   background: none;
   border: none;
   color: var(--bank-gold);
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   cursor: pointer;
   padding: 0.5rem;
-  transition: transform 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .back-button:hover {
+  color: var(--bank-gold-light);
   transform: translateX(-3px);
 }
 
@@ -65,5 +66,6 @@ h2 {
   text-align: center;
   color: var(--bank-gold);
   margin: 0;
+  font-size: 1.8rem;
 }
 </style>
