@@ -110,8 +110,6 @@ def login():
 
     # strip any unallowed characters
     user_name = re.sub(r"[';#$%&*()_+=@/\\|~]", "", user_name)
-    # We shouldn't strip special characters from passwords 
-    # password = re.sub(r"[';#$%&*()_+=@/\\|~]", "", password)
 
     # Secure query using parameterized SQL (prevents SQL injection)
     query = text("SELECT user_id, user_name, user_type, strong_password FROM users WHERE user_name = :user_name")
@@ -196,7 +194,7 @@ def login_sqli_vuln():
             return jsonify(body), 401
 
         # Verify the password (insecure matching)
-        if result[0].password != password:
+        if result[0].password_plaintext != password:
             body = {"message": "Invalid Password",
                     "status_code": 401, 
                     "result": [row._asdict() for row in result]}

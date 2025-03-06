@@ -1,55 +1,23 @@
-<template>
-  <div class="container">
-    <div class="item">
-      <h2 class="login-title">SQL Injection Vulnerable Login</h2>
-      <form @submit.prevent="login">
-        <label for="username">Username</label>
-        <input v-model="user_name" type="text" placeholder="Username" />
-        <label for="password">Password</label>
-        <input v-model="password" type="password" placeholder="Password" />
-        <button type="submit">Login</button>
-      </form>
-    </div>
-
-    <!-- Dropdown Section for Instructions -->
-    <div class="instructions">
-      <button @click="toggleInstructions" class="toggle-button">
-        {{ showInstructions ? "Hide Instructions" : "Instructions" }}
-      </button>
-      <div v-if="showInstructions" class="instructions-content">
-        <h3>How to Use the SQL Vulnerable Version</h3>
-        <p>
-          This version of the login form is intentionally vulnerable to SQL
-          injection attacks. To demonstrate this vulnerability, follow these
-          steps:
-        </p>
-        <ol>
-          <li>Enter a valid username.</li>
-          <li>
-            In the password field, enter a SQL injection payload, such as
-            <code>' OR '1'='1'</code>.
-          </li>
-          <li>Click the "Login" button.</li>
-          <li>If successful, you will see a list of users in the console.</li>
-        </ol>
-        <p>
-          Please use this version responsibly and only in a controlled
-          environment. For more information, please view the project's README.md
-          file.
-        </p>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
+import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 
-const route = useRoute();
+const router = useRouter();
 const user_name = ref("");
 const password = ref("");
 const showInstructions = ref(false); // Reactive variable to control dropdown visibility
+const responseContainerVisible = ref(false);
+const requestText = ref("");
+const responseText = ref("");
+const loginError = ref(false);
+
+// close response container when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.response-container')) {
+    responseContainerVisible.value = false;
+  }
+});
 
 const login = async () => {
   const endpoint = "/api/sqli_vuln/auth/login"; // Use the vulnerable endpoint directly
@@ -64,13 +32,24 @@ const login = async () => {
     }),
   };
 
+  requestText.value = options.body;
+
   const response = await fetch(`http://127.0.0.1:5000${endpoint}`, options);
   if (response.ok) {
     const data = await response.json();
     console.log(data);
-    // Handle successful login (e.g., redirect to dashboard)
+    // Store the access token in local storage
+    localStorage.setItem("access_token", data.access_token);
+    // Redirect to the Customer Dashboard
+    router.push("/dashboard");
   } else {
     // Handle login error
+    console.error("Login failed");
+    // show login error in the form
+    loginError.value = true;
+    const responseData = await response.json();
+    responseText.value = JSON.stringify(responseData);
+    responseContainerVisible.value = true;
   }
 };
 
@@ -78,6 +57,39 @@ const toggleInstructions = () => {
   showInstructions.value = !showInstructions.value; // Toggle the visibility of instructions
 };
 </script>
+
+<template>
+  <div class="container">
+    <div class="item">
+      <h2 class="login-title">SQL Injection Vulnerable Login</h2>
+      <form @submit.prevent="login">
+        <label for="username">Username</label>
+        <input v-model="user_name" type="text" placeholder="Username" />
+        <label for="password">Password</label>
+        <input v-model="password" type="password" placeholder="Password" />
+        <p v-if="loginError" class="login-error">Login failed. Please try again.</p>
+        <button type="submit">Login</button>
+        <p>
+          Don't have an account?
+          <router-link to="/register">Register</router-link>
+        </p>
+      </form>
+    </div>
+
+    <!-- Response Container  -->
+    <div v-if="responseContainerVisible" class="response-container">
+      <span class="response-container-header">
+        <h3>HTTP Request and Response info</h3>
+        <button id="close-response" @click="responseContainerVisible = false">Close</button>
+      </span>
+      <p>Here is what was sent to the server and what the server responded with.</p>
+      <h4>Request:</h4>
+      <pre>{{ requestText }}</pre>
+      <h4>Response:</h4>
+      <pre>{{ responseText }}</pre>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .container {
@@ -209,5 +221,61 @@ button:hover {
     var(--bank-gold-light) 0%,
     var(--bank-gold) 100%
   );
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.response-container{
+  position: absolute;
+  z-index: 1000;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #000000CC;
+  padding: 1rem;
+  padding-top: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 1000px;
+  max-width: 1200px;
+}
+.response-container-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+button#close-response{
+  top: 10px;
+  right: 10px;
+  background: linear-gradient( 135deg, var(--bank-gold) 0%, var(--bank-gold-dark) 100% );;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  width:fit-content;
+  transition: color 0.3s ease;
+}
+.response-container h3{
+  color: #fff;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+.response-container h4{
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+.response-container pre{
+  text-wrap: wrap;
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+
+.login-error{
+  color: red;
 }
 </style>

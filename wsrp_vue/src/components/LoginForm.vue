@@ -26,9 +26,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-onMounted(() => {
-  // log current vulnerability state
-  
+onMounted(() => {  
   const loginButton = document.getElementById("login");
 
   const login = async (event) => {
@@ -52,7 +50,7 @@ onMounted(() => {
       }),
     };
 
-    requestText.value = options.body;;
+    requestText.value = options.body;
 
     const response = await fetch(
       `http://127.0.0.1:5000${endpoint.value}`,
@@ -83,7 +81,7 @@ onMounted(() => {
 <template>
   <div class="item">
     <div class="details">
-      <h3>Login</h3>
+      <h2 class="login-title">Login</h2>
       <form>
         <label for="username">Username</label>
         <input v-model="user_name" type="text" placeholder="Username" />
@@ -91,7 +89,6 @@ onMounted(() => {
         <input v-model="password" type="password" placeholder="Password" />
         <p v-if="loginError" class="login-error">Login failed. Please try again.</p>
         <button id="login" type="submit">Login</button>
-
         <p>
           Don't have an account?
           <router-link to="/register">Register</router-link>
@@ -99,20 +96,16 @@ onMounted(() => {
       </form>
     </div>
   </div>
-  <div v-if="responseContainerVisible" class="response-container">
-    <span class="response-container-header">
-      <h3>HTTP Request and Response info</h3>
-      <button id="close-response" @click="responseContainerVisible = false">Close</button>
-    </span>
-    <p>Here is what was sent to the server and what the server responded with.</p>
-    <h4>Request:</h4>
-    <pre>{{ requestText }}</pre>
-    <h4>Response:</h4>
-    <pre>{{ responseText }}</pre>
-  </div>
 </template>
 
 <style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align items to the left */
+  margin-top: 2rem;
+}
+
 .item {
   margin-top: 2rem;
   display: flex;
@@ -127,6 +120,14 @@ onMounted(() => {
 
 .details {
   flex: 1;
+}
+
+.login-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--bank-gold);
+  text-align: center;
 }
 
 input {
@@ -194,14 +195,6 @@ h3 {
   font-size: 1rem;
   margin-top: 0.5rem;
   text-align: center;
-}
-
-label {
-  display: block;
-  font-size: 1.1rem;
-  color: var(--bank-gold);
-  margin-bottom: 0.5rem;
-  font-weight: 500;
 }
 
 .register-link {
