@@ -8,36 +8,11 @@
         <label for="password">Password</label>
         <input v-model="password" type="password" placeholder="Password" />
         <button type="submit">Login</button>
-      </form>
-    </div>
-
-    <!-- Dropdown Section for Instructions -->
-    <div class="instructions">
-      <button @click="toggleInstructions" class="toggle-button">
-        {{ showInstructions ? "Hide Instructions" : "Show XSS Examples" }}
-      </button>
-      <div v-if="showInstructions" class="instructions-content">
-        <h3>XSS Attack Examples</h3>
         <p>
-          Below are examples of XSS payloads that can be used to exploit
-          vulnerabilities in web applications:
+          Don't have an account?
+          <router-link to="/register">Register</router-link>
         </p>
-        <ol>
-          <li>
-            <strong>Malicious Phishing Alert:</strong>
-            <code
-              >&lt;div style="padding:15px;background:#fee;border:2px solid
-              #c00;border-radius:5px;font-family:Arial;"&gt;&lt;h3
-              style="color:#c00;margin-top:0;"&gt;URGENT: Security
-              Notice&lt;/h3&gt;&lt;p&gt;We've detected unusual activity in your
-              account. Please &lt;a href="https://www.google.com"
-              style="color:#c00;font-weight:bold;"&gt;click here to verify your
-              identity&lt;/a&gt; and prevent your account from being
-              locked.&lt;/p&gt;&lt;/div&gt;</code
-            >
-          </li>
-        </ol>
-      </div>
+      </form>
     </div>
   </div>
 </template>
