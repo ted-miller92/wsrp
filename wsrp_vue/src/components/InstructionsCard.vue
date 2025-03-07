@@ -31,11 +31,11 @@ const toggleInstructions = () => {
           steps:
         </p>
         <ol>
-          <li>Enter a valid username.</li>
           <li>
-            In the password field, enter a SQL injection payload, such as:
+            In the username field, enter a SQL injection payload, such as:
             <pre>' OR '1'='1</pre>
           </li>
+          <li>Enter any password</li>
           <li>Click the "Login" button.</li>
           <li>If successful, you will see a list of users in the console.</li>
         </ol>
@@ -59,7 +59,7 @@ const toggleInstructions = () => {
         <ol>
           <li>
             <strong>Malicious Phishing Alert:</strong>
-            <code
+            <pre
               >&lt;div style="padding:15px;background:#fee;border:2px solid
               #c00;border-radius:5px;font-family:Arial;"&gt;&lt;h3
               style="color:#c00;margin-top:0;"&gt;URGENT: Security
@@ -67,7 +67,7 @@ const toggleInstructions = () => {
               account. Please &lt;a href="https://www.google.com"
               style="color:#c00;font-weight:bold;"&gt;click here to verify your
               identity&lt;/a&gt; and prevent your account from being
-              locked.&lt;/p&gt;&lt;/div&gt;</code
+              locked.&lt;/p&gt;&lt;/div&gt;</pre
             >
           </li>
         </ol>
@@ -131,5 +131,8 @@ const toggleInstructions = () => {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid var(--bank-gold);
   border-radius: 8px;
+}
+pre{
+  background-color: var(--bank-blue-light);
 }
 </style>

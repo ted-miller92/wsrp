@@ -263,7 +263,6 @@ button#close-response{
   word-wrap: break-word;
 }
 
-
 .login-error{
   color: red;
 }
