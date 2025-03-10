@@ -4,6 +4,8 @@ id: brute-force
 
 ## Brute Force
 
+A brute force attack is a method of attempting to gain unauthorized access to a system by systematically trying all possible combinations of usernames and passwords until the correct one is found. In this project, we demonstrate both a vulnerable endpoint that allows unlimited login attempts and a secure endpoint with proper protections against brute force attacks.
+
 ### 1. Insecure Login Endpoint (/insecure_login)
 This route is a basic, insecure login endpoint without any password hashing, rate-limiting, or brute-force protection. It checks if the provided credentials (username and password) match those stored in the database.
 
@@ -109,3 +111,30 @@ Final Notes:
 Ensure that your local server is running and accessible on the given port (e.g., localhost:5000).
 Test edge cases, such as sending empty or malformed data to see how your app handles errors.
 You can test rate-limiting by attempting to hit the secure login endpoint multiple times in quick succession from the same IP.
+
+---
+
+### Why This Is Dangerous
+
+Brute force vulnerabilities can be particularly dangerous because:
+- Attackers can systematically discover valid user credentials
+- Modern computing power makes it feasible to try thousands of combinations quickly
+- Once credentials are discovered, attackers gain legitimate access to accounts
+- Automated tools can run 24/7 until successful
+- Common password patterns make some accounts especially vulnerable
+
+The impacts can include:
+- Unauthorized access to user accounts
+- Theft of sensitive information
+- Financial losses
+- Identity theft
+- Compromise of entire systems through admin account access
+- Reputation damage to the organization
+- Mask other malicious activities
+
+The secure version of any login system should implement:
+- Rate limiting
+- Account lockouts
+- Strong password requirements
+- Multi-factor authentication where possible
+- Logging and monitoring of failed attempts

@@ -4,6 +4,8 @@ id: csrf
 
 ## Cross-Site Request Forgery (CSRF)
 
+Cross-Site Request Forgery (CSRF) is a web security vulnerability that allows an attacker to trick authenticated users into performing unwanted actions on a website where they're currently logged in. The attack works by exploiting the trust that a website has in a user's browser.
+
 A few things have to be true for CSRF to be possible:
 - The user (victim) must be logged in (authenticated) to the target website
 - The target website uses cookie based session management
@@ -16,7 +18,6 @@ The attacker sends a link to the victim which contains a hidden request to the s
 </p>
 
 The request may have hidden parameters that the attacker can control, such as a request to change the user's (victim's) email address to that of the attacker. 
-
 
 If this request is sent successfully, the attacker can then try to log in to the victim's account to request a password change. After this, the attacker basically has full access to whatever the victim has access to.
 
@@ -75,7 +76,7 @@ Add the CSRF Token to the Headers: Go to the "Headers" tab and add a new header:
 
 Key: X-CSRFToken
 Value: <your_CSRF_token>
-This will simulate sending the CSRF token from your browser’s session. If you have manually retrieved a token or temporarily disabled CSRF protection, this step will ensure the server recognizes the token.
+This will simulate sending the CSRF token from your browser's session. If you have manually retrieved a token or temporarily disabled CSRF protection, this step will ensure the server recognizes the token.
 
 Send the Request: Click on "Send" to submit the request. If the CSRF token is valid and matches the one expected by the server, the transfer should be processed successfully.
 
@@ -89,3 +90,24 @@ Edit
     "status_code": 200
 }
 If the CSRF token is missing or invalid, the server should respond with a 400 or 403 status code, indicating that the CSRF token was either not provided or not valid.
+
+---
+
+### Why This Is Dangerous
+
+CSRF vulnerabilities can be particularly dangerous because:
+- Attackers can perform actions on behalf of authenticated users without their knowledge
+- The attacks can target high-privilege users (like administrators)
+- Victims may not realize an attack occurred until after sensitive actions have been performed
+- In financial applications, attackers could:
+  - Transfer money from victim's accounts
+  - Change account details
+  - Make unauthorized purchases
+  - Modify critical account settings
+- In administrative systems, attackers could:
+  - Create new privileged users
+  - Modify system settings
+  - Delete important data
+  - Lock legitimate users out of their accounts
+
+The secure version of any sensitive endpoint should always implement proper CSRF protection through tokens and validate the origin of requests.
