@@ -3,7 +3,7 @@ Coalson, Lindsay, Miller, Sullivan
 
 Oregon State University
 
-Capstone 2023
+Capstone 2024-2025
 
 ## Introduction
 
