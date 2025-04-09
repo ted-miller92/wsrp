@@ -677,4 +677,4 @@ def login_xss_vuln():
 
 # Run the application in debug mode (for development purposes)
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
