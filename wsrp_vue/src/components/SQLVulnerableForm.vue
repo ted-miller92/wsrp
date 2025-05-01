@@ -12,6 +12,9 @@ const requestText = ref("");
 const responseText = ref("");
 const loginError = ref(false);
 
+// get api url from env
+const api_url = import.meta.env.VITE_API_URL;
+
 // close response container when clicking outside
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.response-container')) {
@@ -34,7 +37,7 @@ const login = async () => {
 
   requestText.value = options.body;
 
-  const response = await fetch(`http://127.0.0.1:5000${endpoint}`, options);
+  const response = await fetch(`${api_url}${endpoint}`, options);
   if (response.ok) {
     const data = await response.json();
     console.log(data);
