@@ -33,7 +33,7 @@ async function createAccount(event) {
   };
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/accounts/create', options);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/accounts/create`, options);
     if (response.ok) {
       const data = await response.json();
       router.push('/dashboard'); // Redirect back to dashboard

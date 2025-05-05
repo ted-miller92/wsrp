@@ -24,7 +24,7 @@ const options = {
 const fetchUserProfile = async () => {
   try {
     const response = await fetch(
-      "http://127.0.0.1:5000/api/users?user_name='" + user_name + "'",
+      `${import.meta.env.VITE_API_URL}/api/users?user_name='" + user_name + "'`,
       options
     );
     if (response.ok) {

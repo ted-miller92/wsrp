@@ -34,7 +34,7 @@ const login = async () => {
 
   requestText.value = options.body;
 
-  const response = await fetch(`http://127.0.0.1:5000${endpoint}`, options);
+  const response = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, options);
   if (response.ok) {
     const data = await response.json();
     console.log(data);

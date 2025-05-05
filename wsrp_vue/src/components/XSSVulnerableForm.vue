@@ -44,7 +44,7 @@ const login = async () => {
 
   try {
     console.log("Sending request with payload:", user_name.value);
-    const response = await fetch(`http://127.0.0.1:5000${endpoint}`, options);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, options);
     const data = await response.json();
     console.log("Server response:", data);
 

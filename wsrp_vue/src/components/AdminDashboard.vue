@@ -41,7 +41,7 @@ const options = {
 const fetchTransactions = async () => {
   try {
     const response = await fetch(
-      "http://127.0.0.1:5000/api/transactions",
+      `${import.meta.env.VITE_API_URL}/api/transactions`,
       options
     );
     if (response.ok) {
@@ -57,7 +57,7 @@ const fetchTransactions = async () => {
 
 const fetchAccounts = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:5000/api/accounts", options);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/accounts`, options);
     if (response.ok) {
       accounts.value = await response.json();
       accountsLoading.value = false;

@@ -48,7 +48,7 @@ const options = {
 const fetchTransactions = async () => {
   try {
     const response = await fetch(
-      "http://127.0.0.1:5000/api/transactions?user_name='" + props.userProfile.user.user_name + "'",
+      `${import.meta.env.VITE_API_URL}/api/transactions?user_name='" + props.userProfile.user.user_name + "'`,
       options
     );
     if (response.ok) {
@@ -65,7 +65,7 @@ const fetchTransactions = async () => {
 const fetchAccounts = async (user_id) => {
   try {
     const response = await fetch(
-      "http://127.0.0.1:5000/api/accounts?user_id='" + user_id + "'",
+      `${import.meta.env.VITE_API_URL}/api/accounts?user_id='" + user_id + "'`,
       options
     );
     if (response.ok) {

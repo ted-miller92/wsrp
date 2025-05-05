@@ -29,7 +29,7 @@
         <ol>
           <li>Open the developer console in your browser.</li>
           <li>Copy the following code snippet:</li>
-          <pre><code>fetch('http://127.0.0.1:5000/api/csrf_vuln/transfer', {
+          <pre><code>fetch(`${import.meta.env.VITE_API_URL}/api/csrf_vuln/transfer`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ const submitForm = async () => {
     }),
   };
 
-  const response = await fetch(`http://127.0.0.1:5000${endpoint}`, options);
+  const response = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, options);
   if (response.ok) {
     const data = await response.json();
     console.log(data);

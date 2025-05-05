@@ -53,7 +53,7 @@ onMounted(() => {
     requestText.value = options.body;
 
     const response = await fetch(
-      `http://127.0.0.1:5000${endpoint.value}`,
+      `${import.meta.env.VITE_API_URL}${endpoint.value}`,
       options
     );
     if (response.ok) {
