@@ -13,6 +13,9 @@ const props = defineProps({
 });
 console.log(props.userProfile.user.user_name);
 
+// get environment variable
+const api_url = import.meta.env.VITE_API_URL;
+
 // parse the user_name from the current jwt token
 // this might be an "insecure" way of getting current sessio info
 // const decodedToken = jwtDecode(localStorage.getItem("access_token"));
@@ -41,7 +44,7 @@ const options = {
 const fetchTransactions = async () => {
   try {
     const response = await fetch(
-      "http://127.0.0.1:5000/api/transactions",
+      `${api_url}/api/transactions`,
       options
     );
     if (response.ok) {
@@ -57,7 +60,7 @@ const fetchTransactions = async () => {
 
 const fetchAccounts = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:5000/api/accounts", options);
+    const response = await fetch(`${api_url}/api/accounts`, options);
     if (response.ok) {
       accounts.value = await response.json();
       accountsLoading.value = false;

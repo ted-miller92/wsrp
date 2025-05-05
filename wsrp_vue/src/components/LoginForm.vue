@@ -11,6 +11,9 @@ const requestText = ref("");
 const responseText = ref("");
 const loginError = ref(false);
 
+// get environment variable
+const api_url = import.meta.env.VITE_API_URL;
+
 // load the pinia store so we can access state variables
 const vulnerabilityStore = useVulnerabilityStore();
 
@@ -53,7 +56,7 @@ onMounted(() => {
     requestText.value = options.body;
 
     const response = await fetch(
-      `http://127.0.0.1:5000${endpoint.value}`,
+      `${api_url}${endpoint.value}`,
       options
     );
     if (response.ok) {

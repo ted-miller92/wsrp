@@ -14,6 +14,9 @@ const accountType = ref('CHECKING');
 const initialBalance = ref(0);
 const error = ref('');
 
+// get api url from env
+const api_url = import.meta.env.VITE_API_URL;
+
 async function createAccount(event) {
   event.preventDefault();
   
@@ -33,7 +36,7 @@ async function createAccount(event) {
   };
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/accounts/create', options);
+    const response = await fetch(`${api_url}/api/accounts/create`, options);
     if (response.ok) {
       const data = await response.json();
       router.push('/dashboard'); // Redirect back to dashboard

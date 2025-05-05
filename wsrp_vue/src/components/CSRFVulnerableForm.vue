@@ -66,6 +66,9 @@ const account_id = ref("");
 const amount = ref("");
 const showInstructions = ref(false); // Reactive variable to control dropdown visibility
 
+// get environment variable
+const api_url = import.meta.env.VITE_API_URL;
+
 const submitForm = async () => {
   const endpoint = "/api/csrf_vuln/transfer"; // Use the CSRF vulnerable endpoint directly
   const options = {
@@ -80,7 +83,7 @@ const submitForm = async () => {
     }),
   };
 
-  const response = await fetch(`http://127.0.0.1:5000${endpoint}`, options);
+  const response = await fetch(`${api_url}${endpoint}`, options);
   if (response.ok) {
     const data = await response.json();
     console.log(data);

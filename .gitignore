@@ -2,8 +2,8 @@ server_env/
 __pycache__/
 node_modules
 .vite
-
-
+.env
+.env.development
 # Logs
 wsrp_vue/logs
 *.log

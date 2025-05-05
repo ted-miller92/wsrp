@@ -13,6 +13,9 @@ const user_type = ref({
   CUSTOMER: "CUSTOMER",
 });
 
+// get API URL from .env file
+const api_url = import.meta.env.VITE_API_URL;
+
 onMounted(() => {
   const registerButton = document.getElementById("register");
 
@@ -40,7 +43,7 @@ onMounted(() => {
     };
 
     const response = await fetch(
-      "http://127.0.0.1:5000/api/auth/register",
+      `${api_url}/api/auth/register`,
       options
     );
     if (response.ok) {
