@@ -96,11 +96,14 @@ def index():
        
 # Updated route for user login with combined both login routes into one. Added functionalities 
 # of rate limiting, brute-force protection and bcrypt password verification
-@app.route('/api/auth/login', methods=['POST'])
+@app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
 @csrf.exempt
 @limiter.limit("3 per minute")  # Rate limiting to prevent brute-force attacks
 def login():
     """Handles user login securely with brute-force protection and JWT authentication."""
+    if request.method == 'OPTIONS':
+        # CORS preflight request
+        return '', 204
     data = request.get_json()
     user_name = data.get("user_name")  # Standardizing the name from "username"
     password = data.get("password")
