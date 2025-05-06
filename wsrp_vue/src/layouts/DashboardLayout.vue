@@ -24,7 +24,7 @@ const options = {
 const fetchUserProfile = async () => {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/users?user_name='" + user_name + "'`,
+      `${import.meta.env.VITE_API_URL}/api/users?user_name=${user_name}`,
       options
     );
     if (response.ok) {
