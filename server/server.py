@@ -47,7 +47,7 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 csrf = CSRFProtect(app)
 
 # Enable Cross-Origin Resource Sharing to allow requests from different domains
-CORS(app, resources={r"/api/*": {"origin": "http://localhost:5173", "supports_credentials": True}})
+CORS(app, resources={r"/api/*": {"origins": ["https://wsrp.space/", "https://www.wsrp.space/"], "supports_credentials": True}})
 
 # Database configuration
 # Note: It's a security best practice to store these in a .env file and not hard-code credentials
