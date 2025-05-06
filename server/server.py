@@ -9,6 +9,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, se
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
 from flask_wtf.csrf import CSRFProtect # added for GLobal CSRF protection, add "@csrf.exempt" to CSRF insecure endpoints 
+import os
 
 # Import necessary modules for the brute-force endpoints and hashing
 from flask_limiter import Limiter  # Limiter for rate-limiting requests to prevent abuse (e.g., brute-force attacks)
@@ -16,9 +17,6 @@ from flask_limiter.util import get_remote_address  # get_remote_address to get t
 import bcrypt  # bcrypt for securely hashing passwords
 import time  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
 import random  # random for generating random data (e.g., for generating random strings or delays)
-import mysql.connector
-import bcrypt
-from flask import jsonify, request
 
 # Added for hashing passwords
 # Ensure that when you verify passwords during login, you use bcrypt.checkpw(),
@@ -35,7 +33,7 @@ def calculate_bcrypt(password):
 app = Flask(__name__)
 jwt = JWTManager(app)
 # Flask JWT Configuration
-app.config['JWT_SECRET_KEY'] = 'secret_key' # change this and save in .env file
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
 
 # This is so we can test locally (send token over http instead of only https)
 app.config['JWT_COOKIE_SECURE'] = False
@@ -43,21 +41,18 @@ app.config['JWT_COOKIE_SECURE'] = False
 # allow JWT to be sent in cookies
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 
+# Set Flask secret key
+app.secret_key = os.environ.get('FLASK_SECRET_KEY')
+
 # CSRF global protection 
 csrf = CSRFProtect(app)
 
 # Enable Cross-Origin Resource Sharing to allow requests from different domains
-CORS(app, resources={r"/api/*": {"origin": "http://localhost:5173", "supports_credentials": True}})
+CORS(app, resources={r"/api/*": {"origins": ["https://wsrp.space", "https://www.wsrp.space", "http://localhost:5173"], "supports_credentials": True}})
 
 # Database configuration
-# Note: It's a security best practice to store these in a .env file and not hard-code credentials
-DB_USER = 'server_user'  # Database username
-DB_PASSWORD = 'server_password'  # Database password
-DB_NAME = 'banking_db_v0'  # Name of the database
-DB_HOST = 'localhost'  # Host address for the database
-
-# Configure the SQLAlchemy database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
+# Use environment variable for SQLAlchemy database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tracking for performance reasons
 
 # Initialize SQLAlchemy with the Flask app
