@@ -53,12 +53,7 @@ const messages = ref([]);
 const selectedModel = ref("meta-llama/llama-4-maverick:free");
 const models = [
   { value: "meta-llama/llama-4-maverick:free", label: "Meta-Llama: Llama 4 Maverick (Free)" },
-  { value: "qwen/qwen3-235b-a22b:free", label: "Qwen 3 235B A22B (Free)" },
-  { value: "google/gemini-2.0-flash-exp:free", label: "Google: Gemini 2.0 Flash Exp (Free)" },
-  { value: "nvidia/llama-3.3-nemotron-super-49b-v1:free", label: "NVIDIA: Llama 3.3 Nemotron Super 49B V1 (Free)" },
-  { value: "opengvlab/internvl3-14b:free", label: "OpenGVLab: InternVL3 14B (Free, 128K ctx)" },
   { value: "qwen/qwen3-30b-a3b:free", label: "Qwen 3 30B A3B (Free)" },
-  { value: "deepseek/deepseek-prover-v2:free", label: "DeepSeek: DeepSeek Prover V2 (Free, 164K ctx)" },
   { value: "deepseek/deepseek-r1:free", label: "DeepSeek: DeepSeek R1 (Free)" },
   { value: "deepseek/deepseek-chat-v3-0324:free", label: "DeepSeek: DeepSeek Chat V3 0324 (Free)" },
   { value: "deepseek/deepseek-v3-base:free", label: "DeepSeek: DeepSeek V3 Base (Free)" },
@@ -69,8 +64,6 @@ const models = [
   { value: "microsoft/mai-ds-r1:free", label: "Microsoft: MAI-DS-R1 (Free)" },
   { value: "cognitivecomputations/dolphin3.0-r1-mistral-24b:free", label: "CognitiveComputations: Dolphin 3.0 R1 Mistral 24B (Free)" },
   { value: "nousresearch/deephermes-3-llama-3-8b-preview:free", label: "NousResearch: DeepHermes 3 Llama 3 8B Preview (Free)" },
-  { value: "mistralai/mistral-7b-instruct", label: "Mistral 7B Instruct" },
-  { value: "qwen/qwen3-0.6b-04-28:free", label: "Qwen 3 0.6B (Free)" }
 ];
 
 console.log('API KEY:', import.meta.env.VITE_OPENROUTER_API_KEY);
