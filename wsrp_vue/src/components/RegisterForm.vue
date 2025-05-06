@@ -21,7 +21,6 @@ onMounted(() => {
 
     const options = {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
@@ -46,12 +45,6 @@ onMounted(() => {
     if (response.ok) {
       const data = await response.json();
       console.log(data);
-
-      // Get the JWT access token
-      // Store it in the local storage
-      // Note: Storing as a cookie is perhaps better than local storage
-      // Note: It may be better in the future to store it using a state management tool like Pinia
-      // localStorage.setItem("access_token", data.access_token);
       router.push("/login");
     }
   }
@@ -60,70 +53,121 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="item">
-    <div class="details">
-      <h3>Register</h3>
+  <div class="register-container">
+    <div class="register-form">
+      <h3>Create Your Account</h3>
       <form>
-        <label for="username">Username</label>
-        <input v-model="user_name" type="text" placeholder="Username" />
+        <div class="form-grid">
+          <div class="form-column">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input v-model="user_name" type="text" placeholder="Username" />
+            </div>
 
-        <label for="email">Email</label>
-        <input v-model="email" type="email" placeholder="Email" />
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input v-model="email" type="email" placeholder="Email" />
+            </div>
 
-        <label for="first_name">First Name</label>
-        <input v-model="first_name" type="text" placeholder="First Name" />
+            <div class="form-group">
+              <label for="first_name">First Name</label>
+              <input v-model="first_name" type="text" placeholder="First Name" />
+            </div>
+          </div>
 
-        <label for="last_name">Last Name</label>
-        <input v-model="last_name" type="text" placeholder="Last Name" />
+          <div class="form-column">
+            <div class="form-group">
+              <label for="last_name">Last Name</label>
+              <input v-model="last_name" type="text" placeholder="Last Name" />
+            </div>
 
-        <label for="user_type">User type</label>
-        <select v-model="user_type">
-          <option value="CUSTOMER">Customer</option>
-          <option value="EMPLOYEE">Admin</option>
-        </select>
+            <div class="form-group">
+              <label for="user_type">User Type</label>
+              <select v-model="user_type">
+                <option value="CUSTOMER">Customer</option>
+                <option value="EMPLOYEE">Admin</option>
+              </select>
+            </div>
 
-        <label for="password">Password</label>
-        <input v-model="password" type="password" placeholder="Password" />
-        <label for="confirm-password">Confirm Password</label>
-        <input
-          v-model="confirm_password"
-          type="password"
-          placeholder="Confirm Password"
-        />
-        <button id="register" type="submit">Register</button>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input v-model="password" type="password" placeholder="Password" />
+            </div>
+          </div>
+        </div>
 
-        <p>
-          Already have an account?
-          <router-link to="/login" class="login-link">Login</router-link>
-        </p>
+        <div class="form-actions">
+          <button id="register" type="submit">Register</button>
+          <p>
+            Already have an account?
+            <router-link to="/login" class="login-link">Login</router-link>
+          </p>
+        </div>
       </form>
     </div>
   </div>
 </template>
 
 <style scoped>
-.item {
-  margin-top: 2rem;
+.register-container {
   display: flex;
-  flex-direction: column;
-  position: relative;
+  justify-content: flex-end;
+  align-items: flex-start;
+  min-height: calc(100vh - 60px);
+  padding: 2rem;
+  margin-top: 60px;
+}
+
+.register-form {
+  width: 100%;
+  max-width: 1200px;
   background: rgba(26, 35, 126, 0.4);
   backdrop-filter: blur(10px);
   border: 1px solid var(--bank-gold);
   border-radius: 12px;
   padding: 2rem;
+  margin-left: 2rem;
 }
 
-.details {
-  flex: 1;
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 2rem;
+  padding: 0 2rem;
 }
 
-input {
-  display: block;
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: var(--bank-gold);
+  text-align: center;
+}
+
+input, select {
   width: 100%;
-  margin: 1rem 0;
-  padding: 1rem;
-  font-size: 1.1rem;
+  padding: 0.75rem;
+  font-size: 1rem;
   border: 1px solid var(--bank-gold);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
@@ -131,7 +175,7 @@ input {
   transition: all 0.3s ease;
 }
 
-input:focus {
+input:focus, select:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--bank-gold);
 }
@@ -140,9 +184,20 @@ input::placeholder {
   color: rgba(255, 255, 255, 0.6);
 }
 
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23CFB53B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
 button {
-  margin: 1.5rem 0;
-  padding: 1rem 2rem;
+  width: 100%;
+  max-width: 300px;
+  padding: 0.75rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
   background: linear-gradient(
@@ -157,7 +212,6 @@ button {
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
-  width: 100%;
 }
 
 button:hover {
@@ -170,39 +224,22 @@ button:hover {
   );
 }
 
-h3 {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: var(--bank-gold);
-  text-align: center;
-}
-
-.error-message {
-  color: #f44336;
-  font-size: 1rem;
-  margin-top: 0.5rem;
-  text-align: center;
-}
-
 label {
-  display: block;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--bank-gold);
-  margin-bottom: 0.5rem;
   font-weight: 500;
 }
 
 p {
   text-align: center;
-  margin-top: 1.5rem;
   color: var(--bank-white);
+  margin: 0;
 }
 
 .login-link {
   color: var(--bank-gold);
   text-decoration: none;
-  margin-left: 0.5rem;
+  font-weight: 500;
   transition: color 0.3s ease;
 }
 
@@ -210,9 +247,28 @@ p {
   color: var(--bank-gold-light);
 }
 
+@media (max-width: 1024px) {
+  .register-container {
+    justify-content: center;
+  }
+  
+  .register-form {
+    margin-left: 0;
+    max-width: 800px;
+  }
+  
+  .form-grid {
+    padding: 0;
+  }
+}
+
 @media (max-width: 768px) {
-  .item {
-    margin: 1rem;
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .register-form {
     padding: 1.5rem;
   }
 }

@@ -17,7 +17,7 @@ defineProps({
 <style scoped>
 h1 {
   font-weight: 600;
-  font-size: 4.5rem;
+  font-size: 3rem;
   background: linear-gradient(
     135deg,
     var(--bank-gold-light) 0%,
@@ -26,12 +26,12 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 2px 2px 10px rgba(207, 181, 59, 0.3);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   white-space: nowrap;
 }
 
 h3 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: var(--bank-white);
   opacity: 0.9;
   font-weight: 400;
@@ -50,20 +50,16 @@ h3 {
   }
 }
 
-.greetings h1,
-.greetings h3 {
-  text-align: center;
-}
-
-@media (min-width: 1024px) {
-  .greetings h1,
-  .greetings h3 {
-    text-align: left;
-  }
-}
-
 .greetings {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  padding-left: 2rem;
+}
+
+.greetings h1,
+.greetings h3 {
+  text-align: left;
+  margin: 0;
 }
 </style>
