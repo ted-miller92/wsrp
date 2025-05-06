@@ -1,5 +1,5 @@
 <template>
-  <div class="market-dashboard">
+  <div class="market-dashboard" :style="{ right: chatStore.open ? '450px' : '150px' }">
     <h2>Market Data</h2>
     <div class="market-grid">
       <div
@@ -28,6 +28,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
+import { useChatStore } from '@/stores/chatStore';
+
+const chatStore = useChatStore();
 
 const assets = ref([
   { symbol: "BTC", name: "Bitcoin", price: 0, change: 0 },
@@ -100,7 +103,7 @@ onUnmounted(() => {
 <style scoped>
 .market-dashboard {
   position: fixed;
-  right: 150px;
+  right: 450px;
   top: 138px;
   transform: none;
   width: 280px;

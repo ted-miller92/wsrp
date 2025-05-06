@@ -4,6 +4,7 @@ import MarketDashboard from "./MarketDashboard.vue";
 import NavBar from "./NavBar.vue";
 import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import ChatBot from "./ChatBot.vue";
 
 const router = useRouter();
 
@@ -61,6 +62,7 @@ const navigateToLogin = () => {
       </div>
     </footer>
   </div>
+  <ChatBot />
 </template>
 
 <style scoped>
