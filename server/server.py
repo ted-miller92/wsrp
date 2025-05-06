@@ -48,7 +48,15 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 csrf = CSRFProtect(app)
 
 # Enable Cross-Origin Resource Sharing to allow requests from different domains
-CORS(app, resources={r"/api/*": {"origins": ["https://wsrp.space", "https://www.wsrp.space", "http://localhost:5173"], "supports_credentials": True}})
+CORS(app, resources={r"/api/*": {
+    "origins": [
+        "https://wsrp.space",
+        "https://www.wsrp.space",
+        "http://localhost:5173",
+        re.compile(r"https://wsrp-git-.*-sdl101s-projects\.vercel\.app")
+    ],
+    "supports_credentials": True
+}})
 
 # Database configuration
 # Use environment variable for SQLAlchemy database URI
