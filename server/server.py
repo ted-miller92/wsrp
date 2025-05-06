@@ -392,13 +392,15 @@ def get_users():
     if request.method == 'GET':
         if request.args.get('user_name'):
             user_name = request.args.get('user_name')
-            query = text("SELECT * FROM users WHERE user_name = " + user_name)
+            query = text("SELECT * FROM users WHERE user_name = :user_name")
             with db.engine.begin() as connection:
-                result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+                result = connection.execute(query, {"user_name": user_name}).fetchone()
+                if not result:
+                    return jsonify({"message": "User not found", "status_code": 404}), 404
                 body = {
                     "message": "User Information retrieved successfully",
                     "status_code": 200,
-                    "user": result[0]._asdict()
+                    "user": result._asdict()
                 }
                 return jsonify(body), 200
         else:
@@ -416,9 +418,11 @@ def get_account():
     """
     if request.args.get('account_id'):
         account_id = request.args.get('account_id')
-        query = text("SELECT * FROM accounts WHERE account_id = " + account_id)
+        query = text("SELECT * FROM accounts WHERE account_id = :account_id")
         with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            result = connection.execute(query, {"account_id": account_id}).fetchall()
+            if not result:
+                return jsonify({"message": "Account not found", "status_code": 404}), 404
             body = {
                 "message": "Account retrieved successfully",
                 "status_code": 200,
@@ -430,11 +434,13 @@ def get_account():
         user_id = request.args.get('user_id')
         query = text("SELECT * FROM accounts \
                      INNER JOIN user_accounts ON accounts.account_id = user_accounts.account_id \
-                     WHERE user_accounts.user_id = " + user_id)
+                     WHERE user_accounts.user_id = :user_id")
         with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            result = connection.execute(query, {"user_id": user_id}).fetchall()
+            if not result:
+                return jsonify({"message": "No accounts found for user", "status_code": 404}), 404
             body = {
-                "message": "Accounts retrieved successfully for user " + user_id,
+                "message": "Accounts retrieved successfully for user " + str(user_id),
                 "status_code": 200,
                 "accounts": [row._asdict() for row in result]
             }
@@ -460,11 +466,13 @@ def get_transactions():
     """
     if request.args.get('account_id'):
         account_id = request.args.get('account_id')
-        query = text("SELECT * FROM transactions WHERE account_id = " + account_id)
+        query = text("SELECT * FROM transactions WHERE account_id = :account_id")
         with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            result = connection.execute(query, {"account_id": account_id}).fetchall()
+            if not result:
+                return jsonify({"message": "No transactions found for account", "status_code": 404}), 404
             body = {
-                "message": "Transactions retrieved successfully for account " + account_id,
+                "message": "Transactions retrieved successfully for account " + str(account_id),
                 "status_code": 200,
                 "transactions": [row._asdict() for row in result]
             }
@@ -474,11 +482,13 @@ def get_transactions():
         query = text("SELECT * FROM transactions \
                      INNER JOIN accounts ON transactions.account_id = accounts.account_id \
                      INNER JOIN user_accounts ON accounts.account_id = user_accounts.account_id \
-                     WHERE user_accounts.user_id = " + user_id)
+                     WHERE user_accounts.user_id = :user_id")
         with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            result = connection.execute(query, {"user_id": user_id}).fetchall()
+            if not result:
+                return jsonify({"message": "No transactions found for user", "status_code": 404}), 404
             body = {
-                "message": "Transactions retrieved successfully for account " + user_id,
+                "message": "Transactions retrieved successfully for account " + str(user_id),
                 "status_code": 200,
                 "transactions": [row._asdict() for row in result]
             }
@@ -489,22 +499,26 @@ def get_transactions():
                      INNER JOIN accounts ON transactions.account_id = accounts.account_id \
                      INNER JOIN user_accounts ON accounts.account_id = user_accounts.account_id \
                      INNER JOIN users ON user_accounts.user_id = users.user_id \
-                     WHERE users.user_name = " + user_name)
+                     WHERE users.user_name = :user_name")
         with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            result = connection.execute(query, {"user_name": user_name}).fetchall()
+            if not result:
+                return jsonify({"message": "No transactions found for user", "status_code": 404}), 404
             body = {
-                "message": "Transactions retrieved successfully for user " + user_name,
+                "message": "Transactions retrieved successfully for user " + str(user_name),
                 "status_code": 200,
                 "transactions": [row._asdict() for row in result]
             }
             return jsonify(body), 200
     elif request.args.get('transaction_id'):
         transaction_id = request.args.get('transaction_id')
-        query = text("SELECT * FROM transactions WHERE transaction_id = " + transaction_id)
+        query = text("SELECT * FROM transactions WHERE transaction_id = :transaction_id")
         with db.engine.begin() as connection:
-            result = connection.execute(query).fetchall()  # Execute the query and fetch all rows
+            result = connection.execute(query, {"transaction_id": transaction_id}).fetchall()
+            if not result:
+                return jsonify({"message": "Transaction not found", "status_code": 404}), 404
             body = {
-                "message": "Transaction details retrieved successfully for transaction " + transaction_id,
+                "message": "Transaction details retrieved successfully for transaction " + str(transaction_id),
                 "status_code": 200,
                 "transactions": [row._asdict() for row in result]
             }
@@ -534,12 +548,12 @@ def transfer_money():
     amount = data.get("amount")
 
     # Directly execute SQL query (no authentication check)
-    query = text(f"UPDATE accounts SET account_balance = account_balance - {amount} WHERE account_id = {from_account};")
-    query2 = text(f"UPDATE accounts SET account_balance = account_balance + {amount} WHERE account_id = {to_account};")
+    query = text("UPDATE accounts SET account_balance = account_balance - :amount WHERE account_id = :from_account;")
+    query2 = text("UPDATE accounts SET account_balance = account_balance + :amount WHERE account_id = :to_account;")
 
     with db.engine.begin() as connection:
-        connection.execute(query)
-        connection.execute(query2)
+        connection.execute(query, {"amount": amount, "from_account": from_account})
+        connection.execute(query2, {"amount": amount, "to_account": to_account})
 
     return jsonify({"message": "Transfer successful", "status_code": 200})
 
