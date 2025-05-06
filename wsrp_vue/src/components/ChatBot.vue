@@ -73,6 +73,8 @@ const models = [
   { value: "qwen/qwen3-0.6b-04-28:free", label: "Qwen 3 0.6B (Free)" }
 ];
 
+console.log('API KEY:', import.meta.env.VITE_OPENROUTER_API_KEY);
+
 // Show hello message when chat is opened
 watch(open, (newVal) => {
   if (newVal) {
