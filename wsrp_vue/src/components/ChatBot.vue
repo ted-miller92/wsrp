@@ -212,6 +212,11 @@ async function fetchOpenRouterResponse(prompt, model) {
   background: var(--bank-white);
   color: var(--bank-blue-dark);
   font-size: 1rem;
+  max-width: 180px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chat-messages {
