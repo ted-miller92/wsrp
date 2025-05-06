@@ -27,13 +27,26 @@ onMounted(() => {
 </script>
 
 <template>
-    <a class="nav-link" id="logout">Log out</a>
+    <button class="nav-link logout-btn" id="logout" type="button">Log out</button>
 </template>
 
 <style scoped>
-#logout{
+#logout {
     color: var(--bank-gold-light);
+    background: none;
+    border: none;
+    font: inherit;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap; /* Prevent text from wrapping */
 }
+#logout:hover {
+    color: var(--bank-gold-light);
+    background: rgba(207, 181, 59, 0.1);
+}
+
 .nav-bar {
   position: fixed;
   top: 0;
@@ -59,9 +72,9 @@ onMounted(() => {
   text-decoration: none;
   font-size: 1.1rem;
   font-weight: 500;
-  padding: 0.5rem 1rem;
   border-radius: 8px;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .nav-link:hover {
