@@ -16,6 +16,7 @@ const logout = async () => {
     }
     localStorage.removeItem('access_token');
     router.push('/');
+    setTimeout(() => window.location.reload(), 100); // Force UI update
 };
 
 onMounted(() => {
@@ -31,20 +32,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* Only keep white-space: nowrap for the logout button */
 #logout {
-    color: var(--bank-gold-light);
-    background: none;
-    border: none;
-    font: inherit;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    white-space: nowrap; /* Prevent text from wrapping */
-}
-#logout:hover {
-    color: var(--bank-gold-light);
-    background: rgba(207, 181, 59, 0.1);
+    white-space: nowrap;
 }
 
 .nav-bar {
@@ -75,10 +65,16 @@ onMounted(() => {
   border-radius: 8px;
   transition: all 0.3s ease;
   cursor: pointer;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  font: inherit;
+  display: inline-block;
 }
 
 .nav-link:hover {
   color: var(--bank-gold-light);
+  background: rgba(207, 181, 59, 0.1);
 }
 
 .nav-link.active {
