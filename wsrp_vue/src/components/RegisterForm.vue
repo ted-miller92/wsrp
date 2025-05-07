@@ -60,6 +60,11 @@ onMounted(() => {
         <div class="form-grid">
           <div class="form-column">
             <div class="form-group">
+              <label for="first_name">First Name</label>
+              <input v-model="first_name" type="text" placeholder="First Name" />
+            </div>
+
+            <div class="form-group">
               <label for="username">Username</label>
               <input v-model="user_name" type="text" placeholder="Username" />
             </div>
@@ -67,11 +72,6 @@ onMounted(() => {
             <div class="form-group">
               <label for="email">Email</label>
               <input v-model="email" type="email" placeholder="Email" />
-            </div>
-
-            <div class="form-group">
-              <label for="first_name">First Name</label>
-              <input v-model="first_name" type="text" placeholder="First Name" />
             </div>
           </div>
 
@@ -82,16 +82,16 @@ onMounted(() => {
             </div>
 
             <div class="form-group">
+              <label for="password">Password</label>
+              <input v-model="password" type="password" placeholder="Password" />
+            </div>
+
+            <div class="form-group">
               <label for="user_type">User Type</label>
               <select v-model="user_type">
                 <option value="CUSTOMER">Customer</option>
                 <option value="EMPLOYEE">Admin</option>
               </select>
-            </div>
-
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input v-model="password" type="password" placeholder="Password" />
             </div>
           </div>
         </div>
