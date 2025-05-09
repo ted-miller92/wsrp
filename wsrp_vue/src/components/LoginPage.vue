@@ -1,23 +1,19 @@
 <script setup>
-import { onMounted } from "vue";
-import Welcome from "./Welcome.vue";
+import WelcomeBanner from "./WelcomeBanner.vue";
 import LoginForm from "./LoginForm.vue";
 import SQLVulnerableForm from "./SQLVulnerableForm.vue";
-import CSRFVulnerableForm from "./CSRFVulnerableForm.vue";
 import XSSVulnerableForm from "./XSSVulnerableForm.vue";
 import InstructionsCard from "./InstructionsCard.vue";
 import NavBar from "./NavBar.vue";
-import { useRoute } from "vue-router";
 import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 
-const route = useRoute();
 const vulnerabilityStore = useVulnerabilityStore();
 </script>
 
 <template>
   <NavBar />
   <div class="wrapper">
-    <Welcome msg="Gold Standard Bank" />
+    <WelcomeBanner msg="Gold Standard Bank" />
 
     <aside class="instructions-container">
       <InstructionsCard />
@@ -47,6 +43,10 @@ header {
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
+}
+
+.wrapper {
+  margin-top: 100px; /* Increased to move WelcomeBanner further down */
 }
 
 @media (min-width: 1024px) {

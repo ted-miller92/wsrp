@@ -19,12 +19,9 @@
 
 <script setup>
 import { ref } from "vue";
-import { useRoute } from "vue-router";
 
-const route = useRoute();
 const user_name = ref("");
 const password = ref("");
-const showInstructions = ref(false);
 
 const login = async () => {
   // Console log to make sure the function is being executed
@@ -144,10 +141,6 @@ const login = async () => {
   } catch (error) {
     console.error("Login failed:", error);
   }
-};
-
-const toggleInstructions = () => {
-  showInstructions.value = !showInstructions.value;
 };
 </script>
 

@@ -35,7 +35,7 @@ async function createAccount(event) {
   try {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/accounts/create`, options);
     if (response.ok) {
-      const data = await response.json();
+      await response.json();
       router.push('/dashboard'); // Redirect back to dashboard
     } else {
       error.value = 'Failed to create account';

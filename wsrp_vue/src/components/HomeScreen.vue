@@ -1,16 +1,8 @@
 <script setup>
-import Welcome from "./Welcome.vue";
+import WelcomeBanner from "./WelcomeBanner.vue";
 import MarketDashboard from "./MarketDashboard.vue";
 import NavBar from "./NavBar.vue";
-import { ref, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
 import ChatBot from "./ChatBot.vue";
-
-const router = useRouter();
-
-const navigateToLogin = () => {
-  router.push({ path: "/login" });
-};
 </script>
 
 <template>
@@ -18,7 +10,7 @@ const navigateToLogin = () => {
   <div class="wrapper">
 
     <div class="page-container">
-      <Welcome msg="Gold Standard Bank" />
+      <WelcomeBanner msg="Gold Standard Bank" />
 
       <main>
         <div class="home-container">

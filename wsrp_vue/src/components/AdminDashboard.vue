@@ -1,9 +1,5 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { jwtDecode } from "jwt-decode";
-import TransactionList from "./TransactionList.vue";
-import AccountsList from "./AccountsList.vue";
-import NavBar from "./NavBar.vue";
 
 const props = defineProps({
   userProfile: {

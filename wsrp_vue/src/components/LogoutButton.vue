@@ -11,7 +11,7 @@ const logout = async () => {
             method: 'POST',
             credentials: 'include', // important for cookies
         });
-    } catch (e) {
+    } catch {
         // Ignore errors, still clear local token
     }
     localStorage.removeItem('access_token');

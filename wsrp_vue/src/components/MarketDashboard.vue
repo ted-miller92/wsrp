@@ -41,7 +41,6 @@ const assets = ref([
   { symbol: "GBP", name: "British Pound", price: 0, change: 0 },
 ]);
 
-const API_KEY = "YOUR_API_KEY"; // You'll need to sign up for a free API key
 const updateInterval = ref(null);
 
 const formatPrice = (price) => {

@@ -1,5 +1,5 @@
 <script setup>
-import Welcome from "./Welcome.vue";
+import WelcomeBanner from "./WelcomeBanner.vue";
 import RegisterForm from "./RegisterForm.vue";
 import NavBar from "./NavBar.vue";
 </script>
@@ -8,7 +8,7 @@ import NavBar from "./NavBar.vue";
   <NavBar />
   <header>
     <div class="wrapper">
-      <Welcome msg="Gold Standard Bank" />
+      <WelcomeBanner msg="Gold Standard Bank" />
     </div>
   </header>
 
@@ -20,7 +20,7 @@ import NavBar from "./NavBar.vue";
 <style scoped>
 header {
   line-height: 1.5;
-  margin-top: 60px; /* Added to accommodate navbar */
+  margin-top: 100px; /* Increased to move WelcomeBanner further down */
   margin-bottom: 2rem;
 }
 

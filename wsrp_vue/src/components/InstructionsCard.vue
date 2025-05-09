@@ -1,11 +1,7 @@
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 
-const router = useRouter();
-const user_name = ref("");
-const password = ref("");
 const showInstructions = ref(false); // Reactive variable to control dropdown visibility
 
 // load the pinia store so we can access state variables

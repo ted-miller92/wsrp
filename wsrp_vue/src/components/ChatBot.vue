@@ -126,7 +126,7 @@ async function fetchOpenRouterResponse(prompt, model) {
   // Clean up the bot's response before returning
   let content = data.choices?.[0]?.message?.content || 'No response.';
   // Remove asterisks, excessive whitespace, and strange characters
-  content = content.replace(/[\*]+/g, '') // Remove asterisks
+  content = content.replace(/\*+/g, '') // Remove asterisks
                  .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width chars
                  .replace(/\s{2,}/g, ' ') // Collapse multiple spaces
                  .replace(/\n{2,}/g, '\n') // Collapse multiple newlines

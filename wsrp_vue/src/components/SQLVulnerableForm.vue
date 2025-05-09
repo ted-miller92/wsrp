@@ -1,12 +1,10 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 
 const router = useRouter();
 const user_name = ref("");
 const password = ref("");
-const showInstructions = ref(false); // Reactive variable to control dropdown visibility
 const responseContainerVisible = ref(false);
 const requestText = ref("");
 const responseText = ref("");
@@ -51,10 +49,6 @@ const login = async () => {
     responseText.value = JSON.stringify(responseData);
     responseContainerVisible.value = true;
   }
-};
-
-const toggleInstructions = () => {
-  showInstructions.value = !showInstructions.value; // Toggle the visibility of instructions
 };
 </script>
 

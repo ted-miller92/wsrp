@@ -1,11 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { jwtDecode } from "jwt-decode";
-import TransactionList from "./TransactionList.vue";
 import AccountsList from "./AccountsList.vue";
-import NavBar from "./NavBar.vue";
 import { useRouter } from 'vue-router';
-import NewAccountForm from './NewAccountForm.vue';
 
 const props = defineProps({
   userProfile: {
@@ -15,11 +11,6 @@ const props = defineProps({
 });
 console.log(props.userProfile.user.user_name);
 
-// parse the user_name from the current jwt token
-// this might be an "insecure" way of getting current sessio info
-// const decodedToken = jwtDecode(localStorage.getItem("access_token"));
-// const user_name = decodedToken.sub;
-
 // Data will be loaded into object that includes the list of transactions, response message and response code
 const transactionsLoading = ref(true); // Loading state for transactions
 const transactions = ref(null); // Placeholder for the fetched transactions
@@ -27,9 +18,6 @@ const transactions = ref(null); // Placeholder for the fetched transactions
 // Data will be loaded into object that includes the list of accounts, response message and response code
 const accountsLoading = ref(true); // Loading state for accounts
 const accounts = ref(null); // Placeholder for the fetched accounts
-
-// Control form's visibility
-const showNewAccountForm = ref(false);
 
 const router = useRouter();
 
@@ -113,17 +101,6 @@ const totalBalance = computed(() => {
 const recentTransactions = computed(() => {
   if (!transactions.value?.transactions) return [];
   return transactions.value.transactions.slice(0, 5); // Get last 5 transactions
-});
-
-const accountSummary = computed(() => {
-  if (!accounts.value?.accounts) return { checking: 0, savings: 0, total: 0 };
-  const summary = accounts.value.accounts.reduce((acc, account) => {
-    acc[account.account_type.toLowerCase()] =
-      (acc[account.account_type.toLowerCase()] || 0) +
-      parseFloat(account.account_balance);
-    return acc;
-  }, {});
-  return summary;
 });
 </script>
 

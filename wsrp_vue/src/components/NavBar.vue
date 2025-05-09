@@ -84,58 +84,61 @@ document.addEventListener('click', (e) => {
 
       <LogoutButton v-if="isLoggedIn" />
     </div>
-    <div class="dropdown">
-      <button @click="toggleDropdown" class="dropdown-button">Vulnerabilities</button>
-      <div v-if="isDropdownOpen" class="toggle-container">
-        <div class="toggle-item">
-          <label class="toggle">
-            <input type="checkbox" v-model="vulnerabilityStore.sqliVulnerable" />
-            <span class="slider secure"></span>
-            <span class="toggle-label">
-              SQL Injection
-              {{ vulnerabilityStore.sqliVulnerable ? "Vulnerable" : "Secure" }}
-            </span>
-          </label>
-        </div>
-        <div class="toggle-item">
-          <label class="toggle">
-            <input type="checkbox" v-model="vulnerabilityStore.csrfVulnerable" />
-            <span class="slider secure"></span>
-            <span class="toggle-label">
-              CSRF
-              {{ vulnerabilityStore.csrfVulnerable ? "Vulnerable" : "Secure" }}
-            </span>
-          </label>
-        </div>
-        <div class="toggle-item">
-          <label class="toggle">
-            <input type="checkbox" v-model="vulnerabilityStore.xssVulnerable" />
-            <span class="slider secure"></span>
-            <span class="toggle-label">
-              XSS
-              {{ vulnerabilityStore.xssVulnerable ? "Vulnerable" : "Secure" }}
-            </span>
-          </label>
-        </div>
-        <div class="toggle-item">
-          <label class="toggle">
-            <input type="checkbox" v-model="vulnerabilityStore.fileUploadVulnerable" />
-            <span class="slider secure"></span>
-            <span class="toggle-label">
-              File Upload
-              {{ vulnerabilityStore.fileUploadVulnerable ? "Vulnerable" : "Secure" }}
-            </span>
-          </label>
-        </div>
-        <div class="toggle-item">
-          <label class="toggle">
-            <input type="checkbox" v-model="vulnerabilityStore.idorVulnerable" />
-            <span class="slider secure"></span>
-            <span class="toggle-label">
-              IDOR
-              {{ vulnerabilityStore.idorVulnerable ? "Vulnerable" : "Secure" }}
-            </span>
-          </label>
+    <div class="nav-actions">
+      <router-link to="/instructions" class="instructions-tab">Instructions</router-link>
+      <div class="dropdown">
+        <button @click="toggleDropdown" class="dropdown-button">Vulnerabilities</button>
+        <div v-if="isDropdownOpen" class="toggle-container">
+          <div class="toggle-item">
+            <label class="toggle">
+              <input type="checkbox" v-model="vulnerabilityStore.sqliVulnerable" />
+              <span class="slider secure"></span>
+              <span class="toggle-label">
+                SQL Injection
+                {{ vulnerabilityStore.sqliVulnerable ? "Vulnerable" : "Secure" }}
+              </span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label class="toggle">
+              <input type="checkbox" v-model="vulnerabilityStore.csrfVulnerable" />
+              <span class="slider secure"></span>
+              <span class="toggle-label">
+                CSRF
+                {{ vulnerabilityStore.csrfVulnerable ? "Vulnerable" : "Secure" }}
+              </span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label class="toggle">
+              <input type="checkbox" v-model="vulnerabilityStore.xssVulnerable" />
+              <span class="slider secure"></span>
+              <span class="toggle-label">
+                XSS
+                {{ vulnerabilityStore.xssVulnerable ? "Vulnerable" : "Secure" }}
+              </span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label class="toggle">
+              <input type="checkbox" v-model="vulnerabilityStore.fileUploadVulnerable" />
+              <span class="slider secure"></span>
+              <span class="toggle-label">
+                File Upload
+                {{ vulnerabilityStore.fileUploadVulnerable ? "Vulnerable" : "Secure" }}
+              </span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label class="toggle">
+              <input type="checkbox" v-model="vulnerabilityStore.idorVulnerable" />
+              <span class="slider secure"></span>
+              <span class="toggle-label">
+                IDOR
+                {{ vulnerabilityStore.idorVulnerable ? "Vulnerable" : "Secure" }}
+              </span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -198,9 +201,18 @@ document.addEventListener('click', (e) => {
   }
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-right: 2rem;
+}
 .dropdown {
   width: 250px;
-  margin-right: 400px;
+  margin-right: 0;
+}
+.instructions-tab {
+  margin-left: 0;
 }
 .dropdown:hover{
   color: var(--bank-gold-light);
@@ -305,5 +317,21 @@ document.addEventListener('click', (e) => {
 
 .toggle:hover .toggle-label {
   color: var(--bank-gold-light);
+}
+
+.instructions-tab {
+  background: none;
+  border: none;
+  color: var(--bank-white);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin-left: 1rem;
+}
+.instructions-tab:hover {
+  color: var(--bank-gold-light);
+  background: rgba(207, 181, 59, 0.1);
 }
 </style>
