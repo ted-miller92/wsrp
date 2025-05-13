@@ -139,6 +139,16 @@ document.addEventListener('click', (e) => {
               </span>
             </label>
           </div>
+          <div class="toggle-item">
+            <label class="toggle">
+              <input type="checkbox" v-model="vulnerabilityStore.bruteForceVulnerable" />
+              <span class="slider secure"></span>
+              <span class="toggle-label">
+                Brute Force
+                {{ vulnerabilityStore.bruteForceVulnerable ? "Vulnerable" : "Secure" }}
+              </span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
