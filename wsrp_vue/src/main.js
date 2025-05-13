@@ -13,6 +13,7 @@ import HomeScreen from "./components/HomeScreen.vue";
 import DashboardLayout from "./layouts/DashboardLayout.vue";
 import NewAccountPage from "./components/NewAccountPage.vue";
 import InstructionsPage from "./components/InstructionsPage.vue";
+import FileUploadDemo from "./components/FileUploadDemo.vue";
 import "./assets/main.css";
 
 const router = createRouter({
@@ -28,6 +29,7 @@ const router = createRouter({
     { path: "/dashboard", component: DashboardLayout },
     { path: "/new-account", component: NewAccountPage },
     { path: "/instructions", component: InstructionsPage },
+    { path: "/file-upload-demo", component: FileUploadDemo },
   ],
 });
 
