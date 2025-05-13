@@ -720,14 +720,17 @@ def upload_file():
 
 @app.route('/api/vuln/upload', methods=['POST'])
 def vuln_upload_file():
+    print("Request.files:", request.files)
     if 'file' not in request.files:
+        print("No file part in request")
         return jsonify({'message': 'No file part'}), 400
     file = request.files['file']
     if file.filename == '':
+        print("No selected file")
         return jsonify({'message': 'No selected file'}), 400
-    # No file type check!
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    print("File uploaded:", filename)
     return jsonify({'message': 'File uploaded (vulnerable endpoint)'}), 200
 
 # Run the application in debug mode (for development purposes)
