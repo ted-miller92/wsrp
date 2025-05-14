@@ -12,13 +12,16 @@ from flask_wtf.csrf import CSRFProtect # added for GLobal CSRF protection, add "
 import os
 from werkzeug.utils import secure_filename
 
+# need this to load environment variables locally
+from dotenv import load_dotenv
+load_dotenv()
+
 # Import necessary modules for the brute-force endpoints and hashing
 from flask_limiter import Limiter  # Limiter for rate-limiting requests to prevent abuse (e.g., brute-force attacks)
 from flask_limiter.util import get_remote_address  # get_remote_address to get the client IP address for rate-limiting
 import bcrypt  # bcrypt for securely hashing passwords
 import time  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
 import random  # random for generating random data (e.g., for generating random strings or delays)
-
 # Added for hashing passwords
 # Ensure that when you verify passwords during login, you use bcrypt.checkpw(),
 # because bcrypt hashes will always be different but can still verify the same password.
@@ -29,11 +32,14 @@ def calculate_bcrypt(password):
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
+# Initialize SQLAlchemy with the Flask app
+db = SQLAlchemy()
 
 # Initialize the Flask app
 app = Flask(__name__)
-jwt = JWTManager(app)
+
 # Flask JWT Configuration
+jwt = JWTManager(app)
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
 
 # This is so we can test locally (send token over http instead of only https)
@@ -45,7 +51,7 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 # Set Flask secret key
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
-# CSRF global protection 
+# CSRF global protection
 csrf = CSRFProtect(app)
 
 # Enable Cross-Origin Resource Sharing to allow requests from different domains
@@ -54,6 +60,7 @@ CORS(app, resources={r"/api/*": {
         "https://wsrp.space",
         "https://www.wsrp.space",
         "http://localhost:5173",
+        "http://127.0.0.1:5173",
         re.compile(r"https://wsrp-git-.*-sdl101s-projects\.vercel\.app")
     ],
     "supports_credentials": True
