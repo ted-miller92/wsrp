@@ -3,6 +3,8 @@ __pycache__/
 node_modules
 .vite
 
+# Environment Variables
+*.env
 
 # Logs
 wsrp_vue/logs
