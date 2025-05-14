@@ -59,6 +59,7 @@ CORS(app, resources={r"/api/*": {
         "https://wsrp.space",
         "https://www.wsrp.space",
         "http://localhost:5173",
+        "http://127.0.0.1:5173",
         re.compile(r"https://wsrp-git-.*-sdl101s-projects\.vercel\.app")
     ],
     "supports_credentials": True
