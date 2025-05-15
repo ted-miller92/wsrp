@@ -66,8 +66,6 @@ const models = [
   { value: "nousresearch/deephermes-3-llama-3-8b-preview:free", label: "NousResearch: DeepHermes 3 Llama 3 8B Preview (Free)" },
 ];
 
-console.log('API KEY:', import.meta.env.VITE_OPENROUTER_API_KEY);
-
 // Show hello message when chat is opened
 watch(open, (newVal) => {
   if (newVal) {
