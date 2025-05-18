@@ -327,6 +327,7 @@ def create_account():
             query1 = text("""
                 INSERT INTO accounts (account_number, account_type, account_balance, account_interest_rate)
                 VALUES (:account_number, :account_type, :initial_balance, :interest_rate)
+                RETURNING account_id
             """)
             
             # Set interest rate based on account type
@@ -336,6 +337,7 @@ def create_account():
                 'INVESTMENT': 0.0025
             }.get(account_type, 0.0)
             
+            # Execute the insert and get the account_id in one step
             result = connection.execute(query1, {
                 'account_number': account_number,
                 'account_type': account_type,
@@ -343,9 +345,8 @@ def create_account():
                 'interest_rate': interest_rate
             })
             
-            # Get the new account_id
-            query2 = text("SELECT LAST_INSERT_ID() as account_id")
-            account_id = connection.execute(query2).fetchone().account_id
+            # Get the account_id from the RETURNING clause
+            account_id = result.fetchone().account_id
             
             # If customer (username provided), link account to user through user_accounts
             if user_name:
