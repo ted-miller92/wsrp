@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import AccountsList from './AccountsList.vue';
 
 const props = defineProps({
   userProfile: {
@@ -8,11 +9,6 @@ const props = defineProps({
   },
 });
 console.log(props.userProfile.user.user_name);
-
-// parse the user_name from the current jwt token
-// this might be an "insecure" way of getting current sessio info
-// const decodedToken = jwtDecode(localStorage.getItem("access_token"));
-// const user_name = decodedToken.sub;
 
 // Data will be loaded into object that includes the list of transactions, response message and response code
 const transactionsLoading = ref(true); // Loading state for transactions

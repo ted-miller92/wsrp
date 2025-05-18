@@ -67,7 +67,6 @@ const fetchAccounts = async (user_id) => {
   }
 };
 
-// acoalson
 const handleNewAccount = () => {
   router.push({ 
     path: '/new-account',
@@ -82,7 +81,6 @@ const handleNewAccount = () => {
 onMounted(async () => {
   await fetchTransactions(); // Fetch transactions
   await fetchAccounts(props.userProfile.user.user_id);
-  // acoalson
   const newAccountButton = document.querySelector('.action-button[data-action="new-account"]');
   if (newAccountButton) {
     newAccountButton.addEventListener('click', handleNewAccount);
