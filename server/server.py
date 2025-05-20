@@ -5,29 +5,18 @@ import re
 from datetime import timedelta
 from flask import Flask, request, jsonify, make_response # Flask for building the web app, request and jsonify for handling HTTP requests and responses
 from flask_jwt_extended import create_access_token, set_access_cookies, jwt_required
-
+from extentions import db, limiter, csrf, jwt
 # from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
 #from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
-# from flask_wtf.csrf import CSRFProtect # added for GLobal CSRF protection, add "@csrf.exempt" to CSRF insecure endpoints 
 from routes import register_blueprints # Imports blueprint routes
+from routes.csrf_routes import csrf_bp
+csrf.exempt(csrf_bp)
 from dotenv import load_dotenv
 import os
-from extentions import db, limiter, csrf, jwt
-
-
-# Import necessary modules for the brute-force endpoints and hashing
-# from flask_limiter import Limiter  # Limiter for rate-limiting requests to prevent abuse (e.g., brute-force attacks)
-# from flask_limiter.util import get_remote_address  # get_remote_address to get the client IP address for rate-limiting
-import bcrypt  # bcrypt for securely hashing passwords. Ensure that when you verify passwords during login, you use bcrypt.checkpw(),
-import time  # sleep to introduce delays (e.g., for brute-force attacks or rate-limiting)
-import random  # random for generating random data (e.g., for generating random strings or delays)
-import mysql.connector
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
-# Update all post put and delete routes to include OPTIONS as methods like this - @app.route('/api/auth/register', methods=['POST', 'OPTIONS']) 
 
 # Update CORS line to this once testing is done and ready to psuh - CORS(app, resources={
 #     r"/api/*": {
@@ -91,26 +80,6 @@ register_blueprints(app) # Registers blueprints for routes files
 
 from routes.auth_routes import auth_bp
 csrf.exempt(auth_bp)
-
-
-
-
-def calculate_bcrypt(password):
-    """Calculate bcrypt hash of password"""
-    salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
-
-
-# Initialize SQLAlchemy with the Flask app
-# db = SQLAlchemy(app)
-
-# Initialize Global Flask-Limiter with the app. To apply it to an enpoint, add "@limiter.limit("3 per minute") below "@app.route"
-# Initialize Flask-Limiter with the app (no default limit for all routes)
-# limiter = Limiter(
-#     get_remote_address,  # Use the client's IP address for rate-limiting
-#     app=app
-# )
-
 
 
 
