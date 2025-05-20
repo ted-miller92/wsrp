@@ -17,3 +17,10 @@ for user, password in users.items():
 
     print(f"('{user}', '{password}', '{bcrypt_hash}'),")
 
+
+def calculate_bcrypt(password):
+    """Calculate bcrypt hash of password"""
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
+
